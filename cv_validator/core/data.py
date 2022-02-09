@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from typing import List, Union, Callable, Any
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from cv_validator.utils.data import *
 
@@ -8,12 +9,14 @@ from cv_validator.utils.data import *
 class DataSource:
     def __init__(
         self,
-        image_paths: List[str] = None,
+        image_paths: Sequence,
         labels: Any = None,
         predictions: Any = None,
         transform: Callable = None,
     ):
-        self.image_paths = image_paths
+        assert len(image_paths) > 0, "Empty paths"
+
+        self.image_paths = _convert_to_path(image_paths)
         self.labels, self.class_to_labels_mapping = \
             _convert_labels_to_dict(labels, self.image_names)
         self.predictions = predictions
@@ -37,6 +40,14 @@ class DataSource:
     def image_names(self):
         return [img_path.name for img_path in self.image_paths]
 
+    @property
+    def params(self):
+        return self._params
+
+    @property
+    def embeddings(self):
+        return self._embeddings
+
     def __iter__(self):
         return self
 
@@ -48,7 +59,7 @@ class DataSource:
 
 
 class DataParams(ABC):
-    def __init__(self, transform=None):
+    def __init__(self, transform: Callable = None):
         self._params = None
         self._transformed_params = None
         self._transform = transform
@@ -71,8 +82,10 @@ class DataParams(ABC):
 
 
 class ImageParams(DataParams):
-    pass
+    def calculate(self):
+        pass
 
 
 class EmbeddingParams(DataParams):
-    pass
+    def calculate(self):
+        pass

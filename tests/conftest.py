@@ -20,7 +20,7 @@ def clf_params() -> ClassifierParams:
 def classification_data(request):
     folder = request.param
     image_dir = ClassifierParams.path_to_clf_dir / folder
-    labels_path = ClassifierParams.path_to_clf_dir / "labels.yaml"
+    labels_path = ClassifierParams.path_to_clf_dir / f"labels_{folder}.yaml"
 
     image_paths = [path for path in image_dir.glob("*/*.jpg")]
 

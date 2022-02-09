@@ -7,6 +7,7 @@ __all__ = [
     "_get_image_paths",
     "_get_labels_from_image_paths",
     "_convert_labels_to_dict",
+    "_convert_to_path"
 ]
 
 
@@ -22,7 +23,7 @@ def _get_image_paths(image_dir: Path):
     return [img_path for img_path in image_dir.rglob("*/*.*")]
 
 
-def _get_labels_from_image_paths(image_paths: List[Path]):
+def _get_labels_from_image_paths(image_paths: List[Path]) -> Dict[str, str]:
     return {
         image_path.name: image_path.parent.name
         for image_path in image_paths
@@ -52,3 +53,16 @@ def _convert_labels_to_dict(labels: Any, image_names: List[str] = None) -> \
         return labels_dict, class_to_labels_mapping
 
     raise TypeError(f"Unsupported labels type: {type(labels)}.")
+
+
+def _convert_to_path(image_paths: Sequence):
+    sample = image_paths[0]
+
+    if isinstance(image_paths[0], str):
+        return [Path(path) for path in image_paths]
+
+    if isinstance(image_paths[0], PurePath):
+        return image_paths
+
+    raise TypeError(f"Unsupported image path type: {type(sample)}.")
+
