@@ -1,5 +1,5 @@
 import pytest
-from pathlib import Path, PurePath
+
 from cv_validator.utils.data import *
 
 
@@ -12,40 +12,72 @@ def test_check_dir_exists(classification_data):
 
 
 @pytest.mark.parametrize('classification_data', ['train'], indirect=True)
-def test_get_full_paths(classification_data):
-    train_dir, image_paths, _, _ = classification_data
-    full_paths = _get_full_paths(train_dir, image_paths)
-
-    assert len(image_paths) == len(full_paths)
-    for path in full_paths:
-        assert isinstance(path, PurePath)
-        assert Path(path).is_file()
-        assert path.relative_to(train_dir) in image_paths
-
-
-@pytest.mark.parametrize('classification_data', ['train'], indirect=True)
 def test_get_image_paths(classification_data):
     train_dir, image_paths, _, _ = classification_data
-    image_names = [path.as_posix() for path in image_paths]
 
-    image_paths_result = _get_image_paths(train_dir, image_names)
-    image_paths_result_wo_names = _get_image_paths(train_dir)
+    image_paths_result = _get_image_paths(train_dir)
 
     assert len(image_paths_result) == len(image_paths)
-    assert len(image_paths_result_wo_names) == len(image_paths)
     assert set(image_paths_result) == set(image_paths)
-    assert set(image_paths_result_wo_names) == set(image_paths)
 
 
 @pytest.mark.parametrize('classification_data', ['train'], indirect=True)
-def test_get_labels_from_image_names(classification_data):
+def test_get_labels_from_image_paths(classification_data, clf_params):
     train_dir, image_paths, labels, _ = classification_data
-    image_names = [path.as_posix() for path in image_paths]
 
-    image_paths_result = _get_image_paths(train_dir, image_names)
-    image_paths_result_wo_names = _get_image_paths(train_dir)
+    labels = _get_labels_from_image_paths(image_paths)
+    labels_unique = set(labels.values())
 
-    assert len(image_paths_result) == len(image_paths)
-    assert len(image_paths_result_wo_names) == len(image_paths)
-    assert set(image_paths_result) == set(image_paths)
-    assert set(image_paths_result_wo_names) == set(image_paths)
+    assert clf_params.num_classes == len(labels_unique)
+
+    for label in labels_unique:
+        assert label in clf_params.classes
+
+
+@pytest.mark.parametrize('classification_data', ['train'], indirect=True)
+def test_convert_labels_to_dict_none(classification_data, clf_params):
+    train_dir, image_paths, labels, _ = classification_data
+    image_names = [img_path.name for img_path in image_paths]
+
+    labels_dict, class_to_labels_mapping = \
+        _convert_labels_to_dict(None, image_names)
+    assert labels_dict is None
+    assert class_to_labels_mapping is None
+
+
+@pytest.mark.parametrize('classification_data', ['train'], indirect=True)
+def test_convert_labels_to_dict_dict(classification_data, clf_params):
+    train_dir, image_paths, labels, _ = classification_data
+    image_names = [img_path.name for img_path in image_paths]
+
+    labels_dict, class_to_labels_mapping = \
+        _convert_labels_to_dict(labels, image_names)
+    assert clf_params.num_classes == len(class_to_labels_mapping)
+    assert set(clf_params.classes) == set(class_to_labels_mapping.values())
+    assert set(range(len(class_to_labels_mapping))) == \
+           set(class_to_labels_mapping.keys())
+
+
+@pytest.mark.parametrize('classification_data', ['train'], indirect=True)
+def test_convert_labels_to_dict_sequence(classification_data, clf_params):
+    train_dir, image_paths, labels, _ = classification_data
+    image_names = [img_path.name for img_path in image_paths]
+
+    labels_dict, class_to_labels_mapping = \
+        _convert_labels_to_dict(list(labels.values()), image_names)
+    assert clf_params.num_classes == len(class_to_labels_mapping)
+    assert set(clf_params.classes) == set(class_to_labels_mapping.values())
+    assert set(range(len(class_to_labels_mapping))) == \
+           set(class_to_labels_mapping.keys())
+
+
+@pytest.mark.parametrize('classification_data', ['train'], indirect=True)
+def test_convert_labels_to_dict_error(classification_data, clf_params):
+    train_dir, image_paths, labels, _ = classification_data
+    image_names = [img_path.name for img_path in image_paths]
+
+    with pytest.raises(TypeError):
+        _, _ = _convert_labels_to_dict(123, image_names)
+
+    with pytest.raises(TypeError):
+        _, _ = _convert_labels_to_dict("abracadabra", image_names)
