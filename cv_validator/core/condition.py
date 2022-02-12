@@ -1,0 +1,44 @@
+from abc import ABC, abstractmethod
+
+from .status import ResultStatus
+
+
+class BaseCondition(ABC):
+    @abstractmethod
+    def __call__(self, control_value: float) -> ResultStatus:
+        pass
+
+    @abstractmethod
+    def description(self) -> str:
+        pass
+
+
+class NoCondition(BaseCondition):
+    def __call__(self, control_value: float) -> ResultStatus:
+        return ResultStatus.NO_RESULT
+
+    def description(self) -> str:
+        return "No condition needed"
+
+
+class MoreThanCondition(BaseCondition):
+    def __init__(self, warn_threshold: float, error_threshold: float):
+        self.warn_threshold: float = warn_threshold
+        self.error_threshold: float = error_threshold
+        self.description: str = ""
+
+    def __call__(self, control_value: float) -> ResultStatus:
+        self.description = f"Control value = {control_value:.3f} "
+        if control_value > self.error_threshold:
+            self.description += (
+                f"which is more than {self.error_threshold:.3f}"
+            )
+            return ResultStatus.BAD
+        if control_value > self.warn_threshold:
+            self.description += f"which is more than {self.warn_threshold:.3f}"
+            return ResultStatus.WARN
+        self.description += f"which is less than {self.warn_threshold:.3f}"
+        return ResultStatus.GOOD
+
+    def description(self) -> str:
+        return self.description

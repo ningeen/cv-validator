@@ -1,11 +1,11 @@
+from collections import defaultdict
+from enum import Enum
 from pathlib import Path
 from typing import Callable, List
-from enum import Enum
-from collections import defaultdict
 
 import cv2
-from joblib import Parallel, delayed
 import numpy as np
+from joblib import Parallel, delayed
 
 
 class Colors(Enum):
@@ -22,11 +22,12 @@ def open_image(path: Path):
 
 def run_parallel_func_on_images(
     image_paths: List[Path],
+    transform: Callable,
     func: Callable,
-    num_workers: int
+    num_workers: int,
 ):
     result = Parallel(n_jobs=num_workers)(
-        delayed(func)(path) for path in image_paths
+        delayed(func)(path, transform) for path in image_paths
     )
     return result
 
@@ -47,7 +48,8 @@ def calc_params(img: np.array):
 
         for percentile in [5, 25, 50, 75, 95]:
             for color in Colors:
-                result[f"{color.name}_perc{percentile:0>2}"] = \
-                    np.percentile(img[:, :, color.value], percentile)
+                name = f"{color.name}_perc{percentile:0>2}"
+                result[name] = np.percentile(
+                    img[:, :, color.value], percentile
+                )
     return result
-

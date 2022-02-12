@@ -1,16 +1,23 @@
-from typing import Callable, List, Any, Union
+from typing import Callable
 
-from cv_validator.core.data import DataSource
-from cv_validator.utils.metric import ScorerTypes, check_scorers
-from cv_validator.utils.task import check_task
-from cv_validator.utils.data import check_datasource
+from ..utils.common import check_class
+from ..utils.metric import ScorerTypes, check_scorers
+from ..utils.task import check_task
+from .data import DataSource
 
 
 class Context:
-    def __init__(self, task: str, train_source: DataSource, test_source: DataSource, model: Callable = None, metrics: ScorerTypes = None):
+    def __init__(
+        self,
+        task: str,
+        train: DataSource,
+        test: DataSource,
+        model: Callable = None,
+        metrics: ScorerTypes = None,
+    ):
         self._task = check_task(task)
-        self.train_source = check_datasource(train_source)
-        self.test_source = check_datasource(test_source)
+        self.train = check_class(train, DataSource)
+        self.test = check_class(test, DataSource)
         self.model = model
         self.metrics = check_scorers(metrics, task)
 

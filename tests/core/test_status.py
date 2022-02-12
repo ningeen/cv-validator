@@ -1,10 +1,7 @@
 import pytest
-from cv_validator.core.status import ResultStatus, CheckStatus
+
+from cv_validator.core.status import ResultStatus
 
 
 def test_tesult_status():
-    assert 4 == len(ResultStatus)
-
-
-def test_check_status():
-    assert 2 == len(CheckStatus)
+    assert 5 == len(ResultStatus)

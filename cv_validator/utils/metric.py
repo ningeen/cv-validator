@@ -1,7 +1,6 @@
 from typing import Callable, List, Union
 
-from sklearn.metrics import get_scorer, SCORERS
-
+from sklearn.metrics import SCORERS, get_scorer
 
 ScorerTypes = [
     str,

@@ -1,19 +1,17 @@
 from collections.abc import Sequence
 from pathlib import Path, PurePath
-from typing import List, Any, Union, Dict, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
-from ..core.data import DataSource
-
-__all__ = [
-    "_check_dir_exists",
-    "_get_image_paths",
-    "_get_labels_from_image_paths",
-    "_convert_labels_to_dict",
-    "_convert_to_path"
-]
+datasource_default_types = ["train", "test"]
 
 
-def _check_dir_exists(path: Union[str, Path]) -> Path:
+def check_datasource_type(datasource_type: str):
+    if datasource_type in datasource_default_types:
+        return datasource_type
+    raise TypeError(f"Unknown datasource {datasource_type}.")
+
+
+def check_dir_exists(path: Union[str, Path]) -> Path:
     if isinstance(path, str):
         path = Path(path)
     if path.is_dir():
@@ -21,19 +19,20 @@ def _check_dir_exists(path: Union[str, Path]) -> Path:
     raise FileExistsError(f"Can't find directory at {path}")
 
 
-def _get_image_paths(image_dir: Path):
+def get_image_paths(image_dir: Path):
     return [img_path for img_path in image_dir.rglob("*/*.*")]
 
 
-def _get_labels_from_image_paths(image_paths: List[Path]) -> Dict[str, str]:
-    return {
-        image_path.name: image_path.parent.name
-        for image_path in image_paths
+def get_labels_from_image_paths(image_paths: List[Path]) -> Dict[str, str]:
+    labels = {
+        image_path.name: image_path.parent.name for image_path in image_paths
     }
+    return labels
 
 
-def _convert_labels_to_dict(labels: Any, image_names: List[str] = None) -> \
-        Tuple[Dict[str, int], Dict[int, Any]]:
+def convert_labels_to_dict(
+    labels: Any, image_names: List[str] = None
+) -> Tuple[Dict[str, int], Dict[int, Any]]:
     if labels is None:
         return None, None
 
@@ -57,7 +56,7 @@ def _convert_labels_to_dict(labels: Any, image_names: List[str] = None) -> \
     raise TypeError(f"Unsupported labels type: {type(labels)}.")
 
 
-def _convert_to_path(image_paths: Sequence):
+def convert_to_path(image_paths: Sequence):
     sample = image_paths[0]
 
     if isinstance(image_paths[0], str):
@@ -67,9 +66,3 @@ def _convert_to_path(image_paths: Sequence):
         return image_paths
 
     raise TypeError(f"Unsupported image path type: {type(sample)}.")
-
-
-def check_datasource(datasource: Any) -> DataSource:
-    if isinstance(datasource, DataSource):
-        return datasource
-    raise TypeError(f"Expected DataSource class, got {type(datasource)}")

@@ -3,7 +3,7 @@ import pytest
 from cv_validator.core.data import DataSource
 
 
-@pytest.mark.parametrize('classification_data', ['train'], indirect=True)
+@pytest.mark.parametrize("classification_data", ["train"], indirect=True)
 def test_datasource_init(classification_data, clf_params):
     image_dir, image_paths, labels, predictions = classification_data
 
