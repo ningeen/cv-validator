@@ -2,6 +2,8 @@ from collections.abc import Sequence
 from pathlib import Path, PurePath
 from typing import List, Any, Union, Dict, Tuple
 
+from ..core.data import DataSource
+
 __all__ = [
     "_check_dir_exists",
     "_get_image_paths",
@@ -66,3 +68,8 @@ def _convert_to_path(image_paths: Sequence):
 
     raise TypeError(f"Unsupported image path type: {type(sample)}.")
 
+
+def check_datasource(datasource: Any) -> DataSource:
+    if isinstance(datasource, DataSource):
+        return datasource
+    raise TypeError(f"Expected DataSource class, got {type(datasource)}")
