@@ -26,5 +26,5 @@
 
 [//]: # (</p>)
 
-# CV validator  
+# CV validator
 Library to validate computer vision data and models.
