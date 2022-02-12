@@ -68,43 +68,24 @@ class DataSource:
     def __next__(self):
         pass
 
-    def _get_calculate_func(
-        self,
-        transform: Callable = None,
-        calc_stats: bool = True,
-        calc_hash: bool = False,
-        calc_embeddings: bool = False,
-    ):
-        def calc_func(path):
-            result = defaultdict(None)
-            img = open_image(path)
-            if calc_stats:
-                result['stats'], result["stats_transform"] = \
-                    self._params.calculate(img, transform)
-            if calc_hash:
-                result['img_hash'], result["img_hash_transform"] = \
-                    self._img_hash.calculate(img, transform)
-            if calc_embeddings:
-                result['embeddings'], result["embeddings_transform"] = \
-                    self._embeddings.calculate(img, transform)
-            return result
-        return calc_func
-
     def calculate(
         self,
-        image_paths: List[Path],
-        transform: Callable = None,
-        calc_stats: bool = True,
+        calc_stats: bool = False,
         calc_hash: bool = False,
         calc_embeddings: bool = False,
-        num_workers: int = 1,
     ):
-        calc_func = self._get_calculate_func(
-            transform, calc_stats, calc_hash, calc_embeddings
-        )
-        result = run_parallel_func_on_images(
-            image_paths, calc_func, num_workers
-        )
+        if calc_stats:
+            self._params.calculate(
+                self.image_paths, self.transform, self.num_workers
+            )
+        if calc_hash:
+            self._img_hash.calculate(
+                self.image_paths, self.transform, self.num_workers
+            )
+        if calc_embeddings:
+            self._embeddings.calculate(
+                self.image_paths, self.transform, self.num_workers
+            )
 
 
 class DataParams(ABC):
@@ -131,7 +112,13 @@ class DataParams(ABC):
 
 
 class ImageParams(DataParams):
-    pass
+    def calculate(
+            self,
+            image_paths: List[Path],
+            transform: Callable = None,
+            num_workers: int = 1,
+    ):
+        pass
 
 
 class ImageHashParams(DataParams):
