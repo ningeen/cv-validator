@@ -1,6 +1,7 @@
-from abc import abstractmethod
 from pathlib import Path
 from typing import Callable, List
+
+from IPython.display import display
 
 from ..utils.image import open_image, run_parallel_func_on_images
 from ..utils.metric import ScorerTypes
@@ -12,13 +13,8 @@ from .status import ResultStatus
 
 class BaseSuite:
     def __init__(self):
-        self.name: str = self.get_name()
         self.checks: List[BaseCheck] = list()
         self._context: Context = None
-
-    @abstractmethod
-    def get_name(self) -> str:
-        pass
 
     def run(
         self,
@@ -31,8 +27,10 @@ class BaseSuite:
         skip_finished: bool = True,
     ):
         self._context = Context(task, train, test, model, metrics)
-        self.prepare_image_params(num_workers)
+        self.prepare_image_params(self._context.train, num_workers)
+        self.prepare_image_params(self._context.test, num_workers)
         self.run_checks(skip_finished)
+        self.show_result()
 
     def run_checks(self, skip_finished: bool):
         for check in self.checks:
@@ -41,30 +39,16 @@ class BaseSuite:
                 continue
             check.run(self._context)
 
-    def prepare_image_params(self, num_workers):
+    def prepare_image_params(self, source: DataSource, num_workers):
         train_params = run_parallel_func_on_images(
-            self._context.train.image_paths,
-            self._context.train.transform,
+            source.image_paths,
+            source.transform,
             self.calc_params,
             num_workers,
         )
-        test_params = run_parallel_func_on_images(
-            self._context.test.image_paths,
-            self._context.test.transform,
-            self.calc_params,
-            num_workers,
-        )
-        self._context.train.update_raw_params(
-            [param["raw"] for param in train_params]
-        )
-        self._context.test.update_raw_params(
-            [param["raw"] for param in test_params]
-        )
-        self._context.train.update_transformed_params(
+        source.update_raw_params([param["raw"] for param in train_params])
+        source.update_transformed_params(
             [param["transformed"] for param in train_params]
-        )
-        self._context.test.update_transformed_params(
-            [param["transformed"] for param in test_params]
         )
 
     def calc_params(self, img_path: Path, transform: Callable):
@@ -90,6 +74,18 @@ class BaseSuite:
                 params["raw"].update(check_params)
 
         return params
+
+    def show_result(self):
+        for check in self.checks:
+            print("-" * 30)
+            print(check.name)
+            print(check.description)
+            print("Result:")
+            print(check.condition.description)
+            for df in check.result.datasets:
+                display(df)
+            for plot in check.result.plots:
+                plot.show()
 
     def save_result(self, check_name: str):
         raise NotImplementedError

@@ -15,11 +15,11 @@ class Context:
         model: Callable = None,
         metrics: ScorerTypes = None,
     ):
-        self._task = check_task(task)
-        self.train = check_class(train, DataSource)
-        self.test = check_class(test, DataSource)
-        self.model = model
-        self.metrics = check_scorers(metrics, task)
+        self._task: str = check_task(task)
+        self.train: DataSource = check_class(train, DataSource)
+        self.test: DataSource = check_class(test, DataSource)
+        self.model: Callable = model
+        self.metrics: ScorerTypes = check_scorers(metrics, task)
 
     @property
     def task(self):

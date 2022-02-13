@@ -52,13 +52,13 @@ class DataSource:
 
     def update_raw_params(self, new_params: List[Dict]):
         if len(new_params) > 0 and sum(len(p) for p in new_params) > 0:
-            self._params.raw_params = new_params
+            self._params.raw = new_params
         else:
             print("Provided empty params")
 
     def update_transformed_params(self, new_params: List[Dict]):
         if len(new_params) > 0 and sum(len(p) for p in new_params) > 0:
-            self._params.transformed_params = new_params
+            self._params.transformed = new_params
         else:
             print("Provided empty params")
 
@@ -74,13 +74,13 @@ class DataSource:
 
 class DataParams:
     def __init__(self):
-        self.raw_params = None
-        self.transformed_params = None
+        self.raw = None
+        self.transformed = None
 
     @property
     def params_calculated(self):
-        return self.raw_params is not None
+        return self.raw is not None
 
     @property
     def transformed_params_calculated(self):
-        return self.transformed_params is not None
+        return self.transformed is not None
