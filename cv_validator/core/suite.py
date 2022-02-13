@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, Iterable, List, Union
 
 from IPython.display import display
 
@@ -12,9 +12,18 @@ from .status import ResultStatus
 
 
 class BaseSuite:
-    def __init__(self):
-        self.checks: List[BaseCheck] = list()
+    def __init__(self, checks: Union[BaseCheck, Iterable[BaseCheck]] = None):
         self._context: Context = None
+
+        self.checks: List[BaseCheck] = list()
+        if self.checks is not None:
+            if isinstance(checks, BaseCheck):
+                self.add_check(checks)
+            elif isinstance(checks, Iterable):
+                for check in checks:
+                    self.add_check(check)
+            else:
+                raise TypeError(f"Can't add checks of type {type(checks)}")
 
     def run(
         self,
@@ -42,6 +51,7 @@ class BaseSuite:
     def prepare_image_params(self, source: DataSource, num_workers):
         train_params = run_parallel_func_on_images(
             source.image_paths,
+            self.checks,
             source.transform,
             self.calc_params,
             num_workers,
@@ -51,13 +61,16 @@ class BaseSuite:
             [param["transformed"] for param in train_params]
         )
 
-    def calc_params(self, img_path: Path, transform: Callable):
+    @staticmethod
+    def calc_params(
+        img_path: Path, checks: List[BaseCheck], transform: Callable
+    ):
         img = open_image(img_path)
         if transform is not None:
             transformed_img = transform(img)
 
         params = {"raw": dict(), "transformed": dict()}
-        for check in self.checks:
+        for check in checks:
             if check.need_transformed_img and transform is None:
                 print(
                     f"Warning: {check.name} needs transformed image, "
@@ -86,6 +99,11 @@ class BaseSuite:
                 display(df)
             for plot in check.result.plots:
                 plot.show()
+
+    def add_check(self, check: BaseCheck):
+        if not isinstance(check, BaseCheck):
+            raise TypeError("Provided check is not inherited from BaseCheck")
+        self.checks.append(check)
 
     def save_result(self, check_name: str):
         raise NotImplementedError

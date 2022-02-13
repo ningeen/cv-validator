@@ -46,4 +46,4 @@ class MoreThanCondition(BaseCondition):
 
     @property
     def description(self) -> str:
-        return self.description
+        return self._description

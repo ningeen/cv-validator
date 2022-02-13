@@ -50,9 +50,9 @@ class ImageSize(BaseCheck):
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()
         result["height"] = img.shape[0]
-        result["wight"] = img.shape[1]
-        result["ratio"] = result["wight"] / result["height"]
-        result["area"] = result["wight"] * result["height"]
+        result["width"] = img.shape[1]
+        result["ratio"] = result["width"] / result["height"]
+        result["area"] = result["width"] * result["height"]
         return result
 
     def run(self, context: Context):
@@ -69,7 +69,7 @@ class ImageSize(BaseCheck):
         result_df = pd.DataFrame.from_dict(
             {
                 self.diff_metric: result,
-                "status": {s.name for s in statuses.values()},
+                "status": statuses,
             },
             orient="index",
         )

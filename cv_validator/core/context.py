@@ -1,8 +1,7 @@
 from typing import Callable
 
 from ..utils.common import check_class
-from ..utils.metric import ScorerTypes, check_scorers
-from ..utils.task import check_task
+from ..utils.metric import ScorerTypes, check_scorers, check_task
 from .data import DataSource
 
 
