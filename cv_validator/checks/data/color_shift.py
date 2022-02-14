@@ -2,10 +2,10 @@ import numpy as np
 
 from ...core.condition import BaseCondition
 from ...utils.image import Colors
-from .image_size import ImageSize
+from .image_size import ParamDistributionCheck
 
 
-class ColorShift(ImageSize):
+class ColorShift(ParamDistributionCheck):
     def __init__(
         self,
         difference_metric: str = "psi",

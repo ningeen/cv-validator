@@ -1,10 +1,10 @@
 import numpy as np
 
 from ...core.condition import BaseCondition
-from .image_size import ImageSize
+from .image_size import ParamDistributionCheck
 
 
-class BrightnessCheck(ImageSize):
+class BrightnessCheck(ParamDistributionCheck):
     def __init__(
         self,
         difference_metric: str = "psi",
