@@ -2,27 +2,11 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from scipy.stats import wasserstein_distance
 
 from ...core.check import BaseCheck
 from ...core.condition import BaseCondition, MoreThanCondition
 from ...core.context import Context
-from ...utils.psi import calculate_psi
-
-_DEFAULT_THRESHOLD = {
-    "psi": {"warn": 0.1, "error": 0.2},
-    "wasserstein_distance": {"warn": 0.5, "error": 2.0},
-}
-_DIFF_METRICS = {
-    "psi": calculate_psi,
-    "wasserstein_distance": wasserstein_distance,
-}
-
-
-def check_diff_metric(difference_metric: str):
-    if difference_metric in _DIFF_METRICS:
-        return difference_metric
-    raise NotImplementedError(f"Metric {difference_metric} is not allowed")
+from ...utils.check import DIFF_METRICS, DIFF_THRESHOLD, check_diff_metric
 
 
 class ImageSize(BaseCheck):
@@ -37,8 +21,8 @@ class ImageSize(BaseCheck):
         self.desired_params = ["height", "width", "ratio", "area"]
         if condition is None:
             self.condition = MoreThanCondition(
-                warn_threshold=_DEFAULT_THRESHOLD[self.diff_metric]["warn"],
-                error_threshold=_DEFAULT_THRESHOLD[self.diff_metric]["error"],
+                warn_threshold=DIFF_THRESHOLD[self.diff_metric]["warn"],
+                error_threshold=DIFF_THRESHOLD[self.diff_metric]["error"],
             )
 
     def get_name(self) -> str:
@@ -81,7 +65,7 @@ class ImageSize(BaseCheck):
         self, df_train: pd.DataFrame, df_test: pd.DataFrame
     ) -> dict:
         result = {}
-        diff_func = _DIFF_METRICS[self.diff_metric]
+        diff_func = DIFF_METRICS[self.diff_metric]
         for param in self.desired_params:
             metric = diff_func(df_train[param].values, df_test[param].values)
             result[param] = metric
