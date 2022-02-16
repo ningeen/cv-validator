@@ -61,8 +61,7 @@ class ParamDistributionCheck(BaseCheck, ABC):
             )
 
     def run(self, context: Context):
-        df_train = self.prepare_data(context.train.params.raw)
-        df_test = self.prepare_data(context.test.params.raw)
+        df_test, df_train = self.get_data(context)
 
         result = self.get_result(df_train, df_test)
 
@@ -81,6 +80,11 @@ class ParamDistributionCheck(BaseCheck, ABC):
 
         self.result.update_status(max(statuses.values()))
         self.result.add_dataset(result_df)
+
+    def get_data(self, context):
+        df_train = self.prepare_data(context.train.params.raw)
+        df_test = self.prepare_data(context.test.params.raw)
+        return df_test, df_train
 
     def get_result(
         self, df_train: pd.DataFrame, df_test: pd.DataFrame
