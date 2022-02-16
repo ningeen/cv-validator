@@ -9,10 +9,11 @@ class BrightnessCheck(ParamDistributionCheck):
         self,
         difference_metric: str = "psi",
         condition: BaseCondition = None,
+        need_transformed_img: bool = False,
         threshold_bright: int = 15,
         threshold_dark: int = 240,
     ):
-        super().__init__(difference_metric, condition)
+        super().__init__(difference_metric, condition, need_transformed_img)
         self.threshold_bright = threshold_bright
         self.threshold_dark = threshold_dark
         self.desired_params = ["bright_ratio", "dark_ratio"]

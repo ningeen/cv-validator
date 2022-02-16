@@ -10,8 +10,9 @@ class ColorShift(ParamDistributionCheck):
         self,
         difference_metric: str = "psi",
         condition: BaseCondition = None,
+        need_transformed_img: bool = False,
     ):
-        super().__init__(difference_metric, condition)
+        super().__init__(difference_metric, condition, need_transformed_img)
         self.desired_params = (
             ["num_channels", "color_mean", "color_std"]
             + [f"{color.name}_mean" for color in Colors]

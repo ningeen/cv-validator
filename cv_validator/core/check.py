@@ -51,8 +51,9 @@ class ParamDistributionCheck(BaseCheck, ABC):
         self,
         difference_metric: str = "psi",
         condition: BaseCondition = None,
+        need_transformed_img: bool = False,
     ):
-        super().__init__()
+        super().__init__(need_transformed_img)
 
         self.desired_params = list()
         self.diff_metric = check_diff_metric(difference_metric)
