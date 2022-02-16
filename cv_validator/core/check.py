@@ -3,6 +3,8 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+import plotly.express as px
+from plotly.basedatatypes import BaseFigure
 
 from ..utils.check import DIFF_METRICS, DIFF_THRESHOLD, check_diff_metric
 from .condition import BaseCondition, MoreThanCondition, NoCondition
@@ -64,6 +66,7 @@ class ParamDistributionCheck(BaseCheck, ABC):
         df_test, df_train = self.get_data(context)
 
         result = self.get_result(df_train, df_test)
+        plots = self.get_plots(df_train, df_test)
 
         statuses = {
             param: self.condition(result[param])
@@ -80,6 +83,8 @@ class ParamDistributionCheck(BaseCheck, ABC):
 
         self.result.update_status(max(statuses.values()))
         self.result.add_dataset(result_df)
+        for plot in plots:
+            self.result.add_plot(plot)
 
     def get_data(self, context):
         df_train = self.prepare_data(context.train.params.raw)
@@ -104,3 +109,19 @@ class ParamDistributionCheck(BaseCheck, ABC):
     def filter_params(self, params_dict: dict) -> dict:
         filtered = {name: params_dict[name] for name in self.desired_params}
         return filtered
+
+    def get_plots(
+        self, df_train: pd.DataFrame, df_test: pd.DataFrame
+    ) -> List[BaseFigure]:
+        plots = []
+        for param in self.desired_params:
+            values = pd.concat([df_train[param], df_test[param]])
+            labels = ["train"] * len(df_train) + ["test"] * len(df_test)
+            fig = px.histogram(
+                x=values,
+                color=labels,
+                marginal="box",
+                title=f"Distribution for feature {param}",
+            )
+            plots.append(fig)
+        return plots
