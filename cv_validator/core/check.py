@@ -7,6 +7,7 @@ import plotly.express as px
 from plotly.basedatatypes import BaseFigure
 
 from ..utils.check import DIFF_METRICS, DIFF_THRESHOLD, check_diff_metric
+from ..utils.common import check_class
 from .condition import BaseCondition, MoreThanCondition, NoCondition
 from .context import Context
 from .result import CheckResult
@@ -24,6 +25,9 @@ class BaseCheck(ABC):
 
     def __repr__(self):
         return self.name
+
+    def update_condition(self, condition: BaseCondition):
+        self.condition = check_class(condition, BaseCondition)
 
     @abstractmethod
     def calc_img_params(self, img: np.array) -> dict:

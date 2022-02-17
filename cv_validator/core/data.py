@@ -2,6 +2,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Union
 
+import pandas as pd
+
 from ..utils.data import (
     check_dir_exists,
     convert_labels_to_dict,
@@ -22,13 +24,32 @@ class DataSource:
         assert len(image_paths) > 0, "Empty paths"
 
         self.image_paths = convert_to_path(image_paths)
-        self.labels, self.class_to_labels_mapping = convert_labels_to_dict(
-            labels, self.image_names
-        )
-        self.predictions = predictions
+        (
+            self.labels,
+            self.class_to_labels,
+            self.labels_to_class,
+        ) = convert_labels_to_dict(labels, self.image_names)
+
+        if predictions is not None:
+            self.predictions = dict()
+            for image_name, label in predictions.items():
+                self.predictions[image_name] = self.labels_to_class[label]
+        else:
+            self.predictions = None
 
         self._params = DataParams()
         self.transform = transform
+
+    @property
+    def labels_pd(self):
+        return pd.Series(self.labels).values
+
+    @property
+    def predictions_pd(self):
+        return pd.Series(self.predictions).values
+
+    def __len__(self):
+        return len(self.image_paths)
 
     @classmethod
     def from_directory(

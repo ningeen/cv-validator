@@ -12,14 +12,14 @@ ScorerTypes = [
 
 task_default_scorers = {
     "binary": ["roc_auc"],
-    "multiclass": ["f1_macro"],
+    "multiclass": ["accuracy"],
     "regression": ["neg_mean_squared_error"],
 }
 
 
 def check_scorers(scorers: ScorerTypes, task: str) -> List[Callable]:
     if scorers is None:
-        return task_default_scorers[task]
+        scorers = task_default_scorers[task]
 
     if not (isinstance(scorers, list) or isinstance(scorers, tuple)):
         scorers = [scorers]

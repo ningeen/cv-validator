@@ -32,9 +32,9 @@ def get_labels_from_image_paths(image_paths: List[Path]) -> Dict[str, str]:
 
 def convert_labels_to_dict(
     labels: Any, image_names: List[str] = None
-) -> Tuple[Dict[str, int], Dict[int, Any]]:
+) -> Tuple[Dict[str, int], Dict[int, Any], Dict[Any, int]]:
     if labels is None:
-        return None, None
+        return None, None, None
 
     if isinstance(labels, dict):
         unique_labels = set(labels.values())
@@ -44,14 +44,15 @@ def convert_labels_to_dict(
         labels_new = labels.copy()
         for image_name, label in labels.items():
             labels_new[image_name] = labels_to_class_mapping[label]
-        return labels_new, class_to_labels_mapping
+        return labels_new, class_to_labels_mapping, labels_to_class_mapping
 
     if isinstance(labels, Sequence) and not isinstance(labels, str):
         unique_labels = set(labels)
         num_labels = len(unique_labels)
         class_to_labels_mapping = dict(zip(range(num_labels), unique_labels))
+        labels_to_class_mapping = dict(zip(unique_labels, range(num_labels)))
         labels_dict = dict(zip(image_names, labels))
-        return labels_dict, class_to_labels_mapping
+        return labels_dict, class_to_labels_mapping, labels_to_class_mapping
 
     raise TypeError(f"Unsupported labels type: {type(labels)}.")
 
