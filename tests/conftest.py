@@ -53,5 +53,8 @@ def classification_data_all() -> dict:
 
 
 @pytest.fixture(scope="session")
-def custom_transform(img: np.array):
-    return img // 2
+def custom_transform():
+    def transform(img: np.array):
+        return img // 2
+
+    return transform

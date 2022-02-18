@@ -1,8 +1,10 @@
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
 
-from cv_validator.core.check import BaseCheck
+from cv_validator.core.check import BaseCheck, DataType
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
 
@@ -77,3 +79,6 @@ class MetricDiff(BaseCheck):
         self.result.update_status(status)
         self.result.add_dataset(result_df)
         self.result.add_plot(plot)
+
+    def prepare_data(self, params: List[Dict]) -> DataType:
+        pass

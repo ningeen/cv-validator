@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -13,6 +13,8 @@ from .context import Context
 from .data import DataSource
 from .result import CheckResult
 from .status import ResultStatus
+
+DataType = Union[np.ndarray, pd.DataFrame]
 
 
 class BaseCheck(ABC):
@@ -49,6 +51,20 @@ class BaseCheck(ABC):
     @property
     def have_result(self):
         return self.result.status != ResultStatus.INITIALIZED
+
+    def get_data(self, context: Context) -> [DataType, DataType]:
+        df_train = self.get_source_data(context.train)
+        df_test = self.get_source_data(context.test)
+        return df_train, df_test
+
+    def get_source_data(self, source: DataSource) -> DataType:
+        params = source.get_params(self.need_transformed_img)
+        df = self.prepare_data(params)
+        return df
+
+    @abstractmethod
+    def prepare_data(self, params: List[Dict]) -> DataType:
+        pass
 
 
 class ParamDistributionCheck(BaseCheck, ABC):
@@ -94,16 +110,6 @@ class ParamDistributionCheck(BaseCheck, ABC):
         self.result.add_dataset(result_df)
         for plot in plots:
             self.result.add_plot(plot)
-
-    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
-        df_train = self.get_source_data(context.train)
-        df_test = self.get_source_data(context.test)
-        return df_train, df_test
-
-    def get_source_data(self, source: DataSource) -> [np.ndarray]:
-        params = source.get_params(self.need_transformed_img)
-        df = self.prepare_data(params)
-        return df
 
     def get_result(
         self, df_train: pd.DataFrame, df_test: pd.DataFrame

@@ -1,7 +1,9 @@
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
 
-from cv_validator.core.check import BaseCheck
+from cv_validator.core.check import BaseCheck, DataType
 from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
@@ -66,3 +68,6 @@ class MetricCheck(BaseCheck):
 
         self.result.update_status(status)
         self.result.add_dataset(result_df)
+
+    def prepare_data(self, params: List[Dict]) -> DataType:
+        pass

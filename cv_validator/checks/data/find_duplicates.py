@@ -99,16 +99,6 @@ class FindDuplicates(BaseCheck, ABC):
         self.result.add_dataset(result_df)
         self.result.add_dataset(duplicates_df)
 
-    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
-        df_train = self.get_source_data(context.train)
-        df_test = self.get_source_data(context.test)
-        return df_train, df_test
-
-    def get_source_data(self, source: DataSource) -> [np.ndarray]:
-        params = source.get_params(self.need_transformed_img)
-        df = self.prepare_data(params)
-        return df
-
     def prepare_data(self, all_params: List[dict]) -> np.ndarray:
         filtered_params = [params[self.param_name] for params in all_params]
         df = np.vstack(filtered_params)

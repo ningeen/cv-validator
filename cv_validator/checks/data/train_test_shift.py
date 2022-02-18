@@ -81,16 +81,6 @@ class TrainTestShift(BaseCheck):
         self.result.update_status(status)
         self.result.add_dataset(result_df)
 
-    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
-        df_train = self.get_source_data(context.train)
-        df_test = self.get_source_data(context.test)
-        return df_train, df_test
-
-    def get_source_data(self, source: DataSource) -> [np.ndarray]:
-        params = source.get_params(self.need_transformed_img)
-        df = self.prepare_data(params)
-        return df
-
     @staticmethod
     def calc_difference_score(
         emb_test: np.ndarray, emb_train: np.ndarray
