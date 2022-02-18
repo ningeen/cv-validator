@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 import pytest
 import yaml
 
@@ -49,3 +50,8 @@ def classification_data_all() -> dict:
         predictions = labels
         data[folder] = image_dir, image_paths, labels, predictions
     return data
+
+
+@pytest.fixture(scope="session")
+def custom_transform(img: np.array):
+    return img // 2

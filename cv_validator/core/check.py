@@ -10,6 +10,7 @@ from ..utils.check import DIFF_METRICS, DIFF_THRESHOLD, check_diff_metric
 from ..utils.common import check_class
 from .condition import BaseCondition, MoreThanCondition, NoCondition
 from .context import Context
+from .data import DataSource
 from .result import CheckResult
 from .status import ResultStatus
 
@@ -68,7 +69,7 @@ class ParamDistributionCheck(BaseCheck, ABC):
             )
 
     def run(self, context: Context):
-        df_test, df_train = self.get_data(context)
+        df_train, df_test = self.get_data(context)
 
         result = self.get_result(df_train, df_test)
         plots = self.get_plots(df_train, df_test)
@@ -94,10 +95,15 @@ class ParamDistributionCheck(BaseCheck, ABC):
         for plot in plots:
             self.result.add_plot(plot)
 
-    def get_data(self, context):
-        df_train = self.prepare_data(context.train.params.raw)
-        df_test = self.prepare_data(context.test.params.raw)
-        return df_test, df_train
+    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
+        df_train = self.get_source_data(context.train)
+        df_test = self.get_source_data(context.test)
+        return df_train, df_test
+
+    def get_source_data(self, source: DataSource) -> [np.ndarray]:
+        params = source.get_params(self.need_transformed_img)
+        df = self.prepare_data(params)
+        return df
 
     def get_result(
         self, df_train: pd.DataFrame, df_test: pd.DataFrame

@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
+from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_argument
 from cv_validator.utils.embedding import (
     WrapInferenceSession,
@@ -64,8 +65,7 @@ class TrainTestShift(BaseCheck):
         return result
 
     def run(self, context: Context):
-        emb_train = self.prepare_data(context.train.params.raw)
-        emb_test = self.prepare_data(context.test.params.raw)
+        emb_train, emb_test = self.get_data(context)
 
         score = self.calc_difference_score(emb_test, emb_train)
 
@@ -80,6 +80,16 @@ class TrainTestShift(BaseCheck):
 
         self.result.update_status(status)
         self.result.add_dataset(result_df)
+
+    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
+        df_train = self.get_source_data(context.train)
+        df_test = self.get_source_data(context.test)
+        return df_train, df_test
+
+    def get_source_data(self, source: DataSource) -> [np.ndarray]:
+        params = source.get_params(self.need_transformed_img)
+        df = self.prepare_data(params)
+        return df
 
     @staticmethod
     def calc_difference_score(

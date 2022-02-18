@@ -17,7 +17,9 @@ from cv_validator.core.data import DataSource
 from cv_validator.core.suite import BaseSuite
 
 
-def test_simple_pipeline(classification_data_all, clf_params):
+def test_simple_pipeline(
+    classification_data_all, clf_params, custom_transform
+):
     _, train_paths, train_labels, train_predictions = classification_data_all[
         "train"
     ]
@@ -25,8 +27,15 @@ def test_simple_pipeline(classification_data_all, clf_params):
         "test"
     ]
 
-    train = DataSource(train_paths, train_labels, train_predictions)
-    test = DataSource(test_paths, test_labels, test_predictions)
+    train = DataSource(
+        train_paths,
+        train_labels,
+        train_predictions,
+        transform=custom_transform,
+    )
+    test = DataSource(
+        test_paths, test_labels, test_predictions, transform=custom_transform
+    )
 
     suite = BaseSuite(
         checks=[
@@ -34,6 +43,7 @@ def test_simple_pipeline(classification_data_all, clf_params):
             ImageSize(difference_metric="wasserstein_distance"),
             ColorShift(),
             BrightnessCheck(),
+            BrightnessCheck(need_transformed_img=True),
             ClassifierLabelDistribution(),
             HashDuplicates(mode="exact", datasource_type="train"),
             EmbeddingDuplicates(mode="approx", datasource_type="between"),

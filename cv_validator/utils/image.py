@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Callable, List
 
 import cv2
+import numpy as np
 from joblib import Parallel, delayed
 
 from cv_validator.core.check import BaseCheck
@@ -32,3 +33,13 @@ def run_parallel_func_on_images(
         delayed(func)(path, checks, transform) for path in image_paths
     )
     return result
+
+
+def apply_transform(img: np.ndarray, transform: Callable):
+    try:
+        # custom
+        transformed_img = transform(img)
+    except KeyError:
+        # albumentations
+        transformed_img = transform(image=img)["image"]
+    return transformed_img

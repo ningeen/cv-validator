@@ -3,7 +3,11 @@ from typing import Callable, Iterable, List, Union
 
 from IPython.display import display
 
-from ..utils.image import open_image, run_parallel_func_on_images
+from ..utils.image import (
+    apply_transform,
+    open_image,
+    run_parallel_func_on_images,
+)
 from ..utils.metric import ScorerTypes
 from .check import BaseCheck
 from .context import Context
@@ -67,7 +71,7 @@ class BaseSuite:
     ):
         img = open_image(img_path)
         if transform is not None:
-            transformed_img = transform(img)
+            transformed_img = apply_transform(img, transform)
 
         params = {"raw": dict(), "transformed": dict()}
         for check in checks:

@@ -71,6 +71,12 @@ class DataSource:
     def params(self):
         return self._params
 
+    def get_params(self, transformed: bool):
+        if transformed:
+            return self._params.transformed
+        else:
+            return self._params.raw
+
     def update_raw_params(self, new_params: List[Dict]):
         if len(new_params) > 0 and sum(len(p) for p in new_params) > 0:
             self._params.raw = new_params

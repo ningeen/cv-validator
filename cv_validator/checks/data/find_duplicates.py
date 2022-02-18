@@ -10,6 +10,7 @@ from scipy import spatial
 from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
+from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_argument
 from cv_validator.utils.embedding import (
     WrapInferenceSession,
@@ -49,8 +50,7 @@ class FindDuplicates(BaseCheck, ABC):
 
     def run(self, context: Context):
         if self._datasource_types == "between":
-            hash_train = self.prepare_data(context.train.params.raw)
-            hash_test = self.prepare_data(context.test.params.raw)
+            hash_train, hash_test = self.get_data(context)
             duplicate_pairs = self.get_duplicates(hash_train, hash_test)
             duplicate_pairs = self.filter_swapped_pairs(duplicate_pairs)
             duplicates = self.collect_duplicates(
@@ -65,7 +65,7 @@ class FindDuplicates(BaseCheck, ABC):
                 datasource = context.train
             else:
                 datasource = context.test
-            hash_source = self.prepare_data(datasource.params.raw)
+            hash_source = self.get_source_data(datasource)
             duplicate_pairs = self.get_duplicates(hash_source)
             duplicate_pairs = self.filter_equal_pairs(duplicate_pairs)
             duplicate_pairs = self.filter_swapped_pairs(duplicate_pairs)
@@ -98,6 +98,16 @@ class FindDuplicates(BaseCheck, ABC):
         self.result.update_status(status)
         self.result.add_dataset(result_df)
         self.result.add_dataset(duplicates_df)
+
+    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
+        df_train = self.get_source_data(context.train)
+        df_test = self.get_source_data(context.test)
+        return df_train, df_test
+
+    def get_source_data(self, source: DataSource) -> [np.ndarray]:
+        params = source.get_params(self.need_transformed_img)
+        df = self.prepare_data(params)
+        return df
 
     def prepare_data(self, all_params: List[dict]) -> np.ndarray:
         filtered_params = [params[self.param_name] for params in all_params]

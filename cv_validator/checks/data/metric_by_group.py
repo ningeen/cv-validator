@@ -9,6 +9,7 @@ import plotly.express as px
 from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
+from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_argument
 
 
@@ -50,10 +51,6 @@ class MetricByGroup(BaseCheck, ABC):
     def intervals(self) -> Dict[str, pd.Interval]:
         pass
 
-    def filter_param(self, params_dict: dict) -> np.ndarray:
-        filtered = [params[self.param] for params in params_dict]
-        return np.array(filtered)
-
     def run(self, context: Context):
         if self.datasource_type == "train":
             datasource = context.train
@@ -66,7 +63,8 @@ class MetricByGroup(BaseCheck, ABC):
         scorer = context.metrics[0]._score_func
         self._update_scorer_name(scorer.__name__)
 
-        param = self.filter_param(datasource.params.raw)
+        param = self.get_source_data(datasource)
+
         result = defaultdict(dict)
         for group, interval in self.intervals.items():
             mask = (param > interval.left) & (param <= interval.right)
@@ -104,6 +102,20 @@ class MetricByGroup(BaseCheck, ABC):
         self.result.update_status(max(statuses.values()))
         self.result.add_dataset(result_df)
         self.result.add_plot(plot)
+
+    def get_data(self, context: Context) -> [np.ndarray, np.ndarray]:
+        df_train = self.get_source_data(context.train)
+        df_test = self.get_source_data(context.test)
+        return df_train, df_test
+
+    def get_source_data(self, source: DataSource) -> [np.ndarray]:
+        params = source.get_params(self.need_transformed_img)
+        df = self.prepare_data(params)
+        return df
+
+    def prepare_data(self, params_dict: dict) -> np.ndarray:
+        filtered = [params[self.param] for params in params_dict]
+        return np.array(filtered)
 
 
 class MetricBySize(MetricByGroup):
