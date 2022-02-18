@@ -1,12 +1,31 @@
-from pathlib import Path
-
 import cv2
 import numpy as np
+import onnx
+import onnxruntime as rt
 
 supported_models = {
     "efficientnet-lite4": "https://github.com/onnx/models/blob/main/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11.onnx?raw=true",
     "efficientnet-lite4-int8": "https://github.com/onnx/models/blob/main/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11-int8.onnx?raw=true",
 }
+
+
+# TODO: Find alternative. Graph stored twice in memory:
+#  https://github.com/microsoft/onnxruntime/pull/800#issuecomment-844326099
+class WrapInferenceSession:
+    def __init__(self, model_path: str):
+        onnx_bytes = onnx.load(model_path)
+        self.sess = rt.InferenceSession(onnx_bytes.SerializeToString())
+        self.onnx_bytes = onnx_bytes
+
+    def run(self, *args):
+        return self.sess.run(*args)
+
+    def __getstate__(self):
+        return {"onnx_bytes": self.onnx_bytes}
+
+    def __setstate__(self, values):
+        self.onnx_bytes = values["onnx_bytes"]
+        self.sess = rt.InferenceSession(self.onnx_bytes.SerializeToString())
 
 
 def center_crop(img, out_height, out_width):

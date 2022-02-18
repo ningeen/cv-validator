@@ -34,7 +34,7 @@ def test_simple_pipeline(classification_data_all, clf_params):
             BrightnessCheck(),
             ClassifierLabelDistribution(),
             HashDuplicates(mode="exact", datasource_type="train"),
-            # EmbeddingDuplicates(mode="approx", datasource_type="between"),
+            EmbeddingDuplicates(mode="approx", datasource_type="between"),
             MetricCheck(),
             MetricDiff(),
             MetricBySize(),

@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 import numpy as np
-import onnxruntime as rt
 import pandas as pd
 from scipy import spatial
 
@@ -14,7 +13,11 @@ from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
-from cv_validator.utils.embedding import pre_process_edge_tpu, supported_models
+from cv_validator.utils.embedding import (
+    WrapInferenceSession,
+    pre_process_edge_tpu,
+    supported_models,
+)
 from cv_validator.utils.hashing import PHash
 
 _DUPLICATE_RATIO_THRESHOLDS = {
@@ -33,7 +36,6 @@ class FindDuplicates(BaseCheck, ABC):
         super().__init__()
         self._modes = ["exact", "approx"]
         self._datasource_types = ["train", "test", "between"]
-        self.param_name = "hash"
 
         self.mode: str = check_argument(mode, self._modes)
         self.datasource_type: str = check_argument(
@@ -143,6 +145,11 @@ class FindDuplicates(BaseCheck, ABC):
     def threshold(self) -> Union[float, int]:
         pass
 
+    @property
+    @abstractmethod
+    def param_name(self) -> str:
+        pass
+
     @abstractmethod
     def distance_func(
         self, hash_left: np.ndarray, hash_right: np.ndarray
@@ -159,6 +166,7 @@ class HashDuplicates(FindDuplicates):
         hamming_distance_threshold: int = 10,
     ):
         super().__init__(mode, datasource_type, condition)
+        self._param_name = "hash"
         if self.mode == "approx":
             self.hamming_distance_threshold = hamming_distance_threshold
         else:
@@ -173,11 +181,15 @@ class HashDuplicates(FindDuplicates):
         return distance
 
     @property
+    def param_name(self) -> str:
+        return self._param_name
+
+    @property
     def threshold(self) -> Union[float, int]:
         return self.hamming_distance_threshold
 
     def calc_img_params(self, img: np.array) -> dict:
-        result = {"hash": self.phash.get_hash_str(img)}
+        result = {self.param_name: self.phash.get_hash_str(img)}
         return result
 
     def get_name(self) -> str:
@@ -205,6 +217,7 @@ class EmbeddingDuplicates(FindDuplicates):
         cosine_distance_threshold: float = 0.05,
     ):
         super().__init__(mode, datasource_type, condition)
+        self._param_name = "embedding"
         self.model_name = check_argument(
             model_name, list(supported_models.keys())
         )
@@ -213,7 +226,8 @@ class EmbeddingDuplicates(FindDuplicates):
             model_path = tmp_dir.joinpath(f"{model_name}.onnx")
         self.model_path = Path(model_path)
         self.load_model()
-        self.sess = rt.InferenceSession(self.model_path.as_posix())
+
+        self.sess = WrapInferenceSession(self.model_path.as_posix())
 
         if self.mode == "approx":
             self.cosine_distance_threshold = cosine_distance_threshold
@@ -234,6 +248,10 @@ class EmbeddingDuplicates(FindDuplicates):
         return distance
 
     @property
+    def param_name(self) -> str:
+        return self._param_name
+
+    @property
     def threshold(self) -> Union[float, int]:
         return self.cosine_distance_threshold
 
@@ -241,7 +259,7 @@ class EmbeddingDuplicates(FindDuplicates):
         img_processed = pre_process_edge_tpu(img)
         img_batch = np.expand_dims(img_processed, axis=0)
         embedding = self.sess.run(None, {"images:0": img_batch})[0][0]
-        result = {"embedding": embedding}
+        result = {self.param_name: embedding}
         return result
 
     def get_name(self) -> str:
