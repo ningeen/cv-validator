@@ -6,3 +6,4 @@ from .label_distribution import ClassifierLabelDistribution
 from .metric_by_group import MetricByRatio, MetricBySize
 from .metric_check import MetricCheck
 from .metric_diff import MetricDiff
+from .train_test_shift import TrainTestShift

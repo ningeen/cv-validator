@@ -11,6 +11,7 @@ from cv_validator.checks.data import (
     MetricBySize,
     MetricCheck,
     MetricDiff,
+    TrainTestShift,
 )
 from cv_validator.core.data import DataSource
 from cv_validator.core.suite import BaseSuite
@@ -40,6 +41,7 @@ def test_simple_pipeline(classification_data_all, clf_params):
             MetricDiff(),
             MetricBySize(),
             MetricByRatio(),
+            TrainTestShift(),
         ]
     )
     suite.run(
