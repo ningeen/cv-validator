@@ -7,6 +7,7 @@ from cv_validator.checks.data import (
     EmbeddingDuplicates,
     HashDuplicates,
     ImageSize,
+    MetricByRatio,
     MetricBySize,
     MetricCheck,
     MetricDiff,
@@ -38,6 +39,7 @@ def test_simple_pipeline(classification_data_all, clf_params):
             MetricCheck(),
             MetricDiff(),
             MetricBySize(),
+            MetricByRatio(),
         ]
     )
     suite.run(
