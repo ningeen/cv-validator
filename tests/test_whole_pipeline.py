@@ -1,6 +1,6 @@
 import pytest
 
-from cv_validator.checks.data import (
+from cv_validator.checks import (
     BrightnessCheck,
     ClassifierLabelDistribution,
     ColorShift,
