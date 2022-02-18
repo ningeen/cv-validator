@@ -81,7 +81,10 @@ class ParamDistributionCheck(BaseCheck, ABC):
         result_df = pd.DataFrame.from_dict(
             {
                 self.diff_metric: result,
-                "status": statuses,
+                "status": {
+                    param: cond_result.name
+                    for param, cond_result in statuses.items()
+                },
             },
             orient="index",
         )
