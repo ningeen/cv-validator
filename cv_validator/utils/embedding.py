@@ -1,3 +1,7 @@
+import tempfile
+import urllib.request
+from pathlib import Path
+
 import cv2
 import numpy as np
 import onnx
@@ -26,6 +30,19 @@ class WrapInferenceSession:
     def __setstate__(self, values):
         self.onnx_bytes = values["onnx_bytes"]
         self.sess = rt.InferenceSession(self.onnx_bytes.SerializeToString())
+
+
+def load_model(model_path: str, model_name: str) -> Path:
+    if model_path is None:
+        tmp_dir = Path(tempfile.gettempdir())
+        model_path = tmp_dir.joinpath(f"{model_name}.onnx")
+
+    model_path = Path(model_path)
+    if not model_path.is_file():
+        urllib.request.urlretrieve(
+            supported_models[model_name], model_path.as_posix()
+        )
+    return model_path
 
 
 def center_crop(img, out_height, out_width):

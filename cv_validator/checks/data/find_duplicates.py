@@ -1,5 +1,3 @@
-import tempfile
-import urllib.request
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
@@ -15,6 +13,7 @@ from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
 from cv_validator.utils.embedding import (
     WrapInferenceSession,
+    load_model,
     pre_process_edge_tpu,
     supported_models,
 )
@@ -221,25 +220,14 @@ class EmbeddingDuplicates(FindDuplicates):
         self.model_name = check_argument(
             model_name, list(supported_models.keys())
         )
-        if model_path is None:
-            tmp_dir = Path(tempfile.gettempdir())
-            model_path = tmp_dir.joinpath(f"{model_name}.onnx")
-        self.model_path = Path(model_path)
-        self.load_model()
 
+        self.model_path = load_model(model_path, model_name)
         self.sess = WrapInferenceSession(self.model_path.as_posix())
 
         if self.mode == "approx":
             self.cosine_distance_threshold = cosine_distance_threshold
         else:
             self.cosine_distance_threshold = 0
-
-    def load_model(self):
-        if self.model_path.is_file():
-            return
-        urllib.request.urlretrieve(
-            supported_models[self.model_name], self.model_path.as_posix()
-        )
 
     def distance_func(
         self, hash_left: np.ndarray, hash_right: np.ndarray
