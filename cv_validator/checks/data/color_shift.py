@@ -1,4 +1,9 @@
+from typing import List
+
 import numpy as np
+import pandas as pd
+import plotly.express as px
+from plotly.basedatatypes import BaseFigure
 
 from ...core.condition import BaseCondition
 from ...utils.image import Colors
@@ -18,6 +23,7 @@ class ColorShift(ParamDistributionCheck):
             + [f"{color.name}_mean" for color in Colors]
             + [f"{color.name}_std" for color in Colors]
         )
+        self.plot_params = ["color_mean", "color_std"]
 
     def get_name(self) -> str:
         return "Image colors check."
@@ -37,3 +43,19 @@ class ColorShift(ParamDistributionCheck):
                 result[f"{color.name}_mean"] = np.mean(img[:, :, color.value])
                 result[f"{color.name}_std"] = np.mean(img[:, :, color.value])
         return result
+
+    def get_plots(
+        self, df_train: pd.DataFrame, df_test: pd.DataFrame
+    ) -> List[BaseFigure]:
+        plots = []
+        for param in self.plot_params:
+            values = pd.concat([df_train[param], df_test[param]])
+            labels = ["train"] * len(df_train) + ["test"] * len(df_test)
+            fig = px.histogram(
+                x=values,
+                color=labels,
+                marginal="box",
+                title=f"Distribution for feature {param}",
+            )
+            plots.append(fig)
+        return plots
