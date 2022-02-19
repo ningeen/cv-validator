@@ -1,8 +1,12 @@
 [tool.poetry]
 name = "cv-validator"
 version = "0.1.0"
-description = ""
+description = "Tool for validating your computer vision data and model results."
 authors = ["Ruslan Sakaev <sakaevruslan@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/ningeen/cv-validator"
+repository = "https://github.com/ningeen/cv-validator"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
@@ -13,7 +17,6 @@ plotly = "^5.6.0"
 ipython = "^8.0.1"
 onnxruntime = "^1.10.0"
 scipy = "^1.8.0"
-#my-package = {path = ".", develop = true}
 onnx = "^1.11.0"
 tqdm = "^4.62.3"
 ipywidgets = "^7.6.5"
