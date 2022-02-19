@@ -1,9 +1,10 @@
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Union
 
-from IPython.display import display
+from IPython.display import Markdown, display
 from tqdm import tqdm
 
+from ..utils.display import result_to_color
 from ..utils.image import (
     apply_transform,
     open_image,
@@ -100,11 +101,16 @@ class BaseSuite:
 
     def show_result(self):
         for check in self.checks:
-            print("-" * 30)
-            print(check.name)
-            print(check.description)
-            print("Result:")
-            print(check.condition.description)
+            display(Markdown("---"))
+            display(Markdown(f"## {check.name}"))
+            display(Markdown(f"### {check.description}"))
+            color = result_to_color(check.result.status)
+            display(
+                Markdown(
+                    f"**Result: <span style='color: {color}'>"
+                    f"{check.condition.description}</span>.**"
+                )
+            )
             for df in check.result.datasets:
                 display(df)
             for plot in check.result.plots:
