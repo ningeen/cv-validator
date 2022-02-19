@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Optional, Union
+from typing import Callable, Dict, Iterable, List, Union
 
 from IPython.display import display
+from tqdm import tqdm
 
 from ..utils.image import (
     apply_transform,
@@ -46,7 +47,9 @@ class BaseSuite:
 
     def run_checks(self, skip_finished: bool):
         assert self._context is not None
-        for check in self.checks:
+        pbar = tqdm(self.checks, desc="Running checks", total=len(self.checks))
+        for check in pbar:
+            pbar.set_postfix_str(f"Processing {check.name}")
             finished_check = check.result.status != ResultStatus.INITIALIZED
             if skip_finished and finished_check:
                 continue
