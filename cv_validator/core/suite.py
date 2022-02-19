@@ -84,6 +84,7 @@ class BaseSuite:
         img_path: Path, checks: List[BaseCheck], transform: Callable
     ) -> Dict[str, Dict[str, float]]:
         img = open_image(img_path)
+        transformed_img = None
         if transform is not None:
             transformed_img = apply_transform(img, transform)
 
@@ -92,15 +93,10 @@ class BaseSuite:
             "transformed": dict(),
         }
         for check in checks:
-            if check.need_transformed_img and transform is None:
-                print(
-                    f"Warning: {check.name} needs transformed image, "
-                    f"but no transform function provided."
-                )
-                check.result.update_status(ResultStatus.NO_RESULT)
-                continue
-
-            if check.need_transformed_img:
+            if check.need_transformed_img and transformed_img is None:
+                check_params = check.calc_img_params(img)
+                params["transformed"].update(check_params)
+            elif check.need_transformed_img:
                 check_params = check.calc_img_params(transformed_img)
                 params["transformed"].update(check_params)
             else:
