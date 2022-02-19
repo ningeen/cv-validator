@@ -1,6 +1,9 @@
 from collections.abc import Sequence
 from pathlib import Path, PurePath
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
 
 datasource_default_types = ["train", "test"]
 
@@ -30,29 +33,23 @@ def get_labels_from_image_paths(image_paths: List[Path]) -> Dict[str, str]:
     return labels
 
 
-def convert_labels_to_dict(
+def check_labels_and_predictions(
     labels: Union[Dict, Sequence], image_names: List[str] = None
-) -> Tuple[Dict[str, int], Dict[int, Any], Dict[Any, int]]:
+) -> Optional[Dict[str, Any]]:
     if labels is None:
-        return None, None, None
+        return None
 
     if isinstance(labels, dict):
-        unique_labels = set(labels.values())
-        num_labels = len(unique_labels)
-        class_to_labels_mapping = dict(zip(range(num_labels), unique_labels))
-        labels_to_class_mapping = dict(zip(unique_labels, range(num_labels)))
-        labels_new = labels.copy()
-        for image_name, label in labels.items():
-            labels_new[image_name] = labels_to_class_mapping[label]
-        return labels_new, class_to_labels_mapping, labels_to_class_mapping
+        assert set(image_names) == set(labels.keys())
+        return labels
 
-    if isinstance(labels, Sequence) and not isinstance(labels, str):
-        unique_labels = set(labels)
-        num_labels = len(unique_labels)
-        class_to_labels_mapping = dict(zip(range(num_labels), unique_labels))
-        labels_to_class_mapping = dict(zip(unique_labels, range(num_labels)))
+    if (
+        isinstance(labels, Sequence)
+        or isinstance(labels, np.ndarray)
+        or isinstance(labels, pd.Series)
+    ) and not isinstance(labels, str):
         labels_dict = dict(zip(image_names, labels))
-        return labels_dict, class_to_labels_mapping, labels_to_class_mapping
+        return labels_dict
 
     raise TypeError(f"Unsupported labels type: {type(labels)}.")
 

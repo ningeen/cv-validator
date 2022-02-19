@@ -57,7 +57,7 @@ class MetricByGroup(BaseCheck, ABC):
         else:
             datasource = context.test
 
-        if len(datasource.predictions) == 0 or len(datasource.labels) == 0:
+        if datasource.predictions is None or datasource.labels is None:
             return
 
         scorer = get_metric_function(context.metrics[0])
@@ -70,7 +70,8 @@ class MetricByGroup(BaseCheck, ABC):
             mask = (param > interval.left) & (param <= interval.right)
             if np.sum(mask) > 0:
                 score = scorer(
-                    datasource.labels_pd[mask], datasource.predictions_pd[mask]
+                    datasource.labels_array[mask],
+                    datasource.predictions_array[mask],
                 )
             else:
                 score = None

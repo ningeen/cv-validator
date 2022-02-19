@@ -56,7 +56,7 @@ class MetricCheck(BaseCheck):
         scorer = get_metric_function(context.metrics[0])
         self._update_scorer_name(scorer.__name__)
 
-        score = scorer(datasource.labels_pd, datasource.predictions_pd)
+        score = scorer(datasource.labels_array, datasource.predictions_array)
 
         status = self.condition(score)
         result_df = pd.DataFrame.from_dict(

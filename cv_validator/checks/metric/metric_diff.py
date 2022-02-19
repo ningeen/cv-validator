@@ -42,19 +42,15 @@ class MetricDiff(BaseCheck):
         scorer = get_metric_function(context.metrics[0])
         self._update_scorer_name(scorer.__name__)
 
-        if (
-            len(context.train.predictions) == 0
-            or len(context.train.labels) == 0
-        ):
-            return
-        if len(context.test.predictions) == 0 or len(context.test.labels) == 0:
-            return
+        for datasource in [context.train, context.test]:
+            if datasource.predictions is None or datasource.labels is None:
+                return
 
         train_score = scorer(
-            context.train.labels_pd, context.train.predictions_pd
+            context.train.labels_array, context.train.predictions_array
         )
         test_score = scorer(
-            context.test.labels_pd, context.test.predictions_pd
+            context.test.labels_array, context.test.predictions_array
         )
         diff = train_score - test_score
         relative_diff = diff / train_score
