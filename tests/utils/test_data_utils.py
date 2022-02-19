@@ -44,14 +44,8 @@ def test_convert_labels_to_dict_none(classification_data, clf_params):
     train_dir, image_paths, labels, _ = classification_data
     image_names = [img_path.name for img_path in image_paths]
 
-    (
-        labels_dict,
-        class_to_labels,
-        labels_to_class,
-    ) = check_labels_and_predictions(None, image_names)
+    labels_dict = check_labels_and_predictions(None, image_names)
     assert labels_dict is None
-    assert class_to_labels is None
-    assert labels_to_class is None
 
 
 @pytest.mark.parametrize("classification_data", ["train"], indirect=True)
@@ -59,14 +53,8 @@ def test_convert_labels_to_dict_dict(classification_data, clf_params):
     train_dir, image_paths, labels, _ = classification_data
     image_names = [img_path.name for img_path in image_paths]
 
-    (
-        labels_dict,
-        class_to_labels,
-        labels_to_class,
-    ) = check_labels_and_predictions(labels, image_names)
-    assert clf_params.num_classes == len(class_to_labels)
-    assert set(clf_params.classes) == set(class_to_labels.values())
-    assert set(range(len(class_to_labels))) == set(class_to_labels.keys())
+    labels_dict = check_labels_and_predictions(labels, image_names)
+    assert clf_params.num_classes == len(set(labels_dict.values()))
 
 
 @pytest.mark.parametrize("classification_data", ["train"], indirect=True)
@@ -74,14 +62,10 @@ def test_convert_labels_to_dict_sequence(classification_data, clf_params):
     train_dir, image_paths, labels, _ = classification_data
     image_names = [img_path.name for img_path in image_paths]
 
-    (
-        labels_dict,
-        class_to_labels,
-        labels_to_class,
-    ) = check_labels_and_predictions(list(labels.values()), image_names)
-    assert clf_params.num_classes == len(class_to_labels)
-    assert set(clf_params.classes) == set(class_to_labels.values())
-    assert set(range(len(class_to_labels))) == set(class_to_labels.keys())
+    labels_dict = check_labels_and_predictions(
+        list(labels.values()), image_names
+    )
+    assert clf_params.num_classes == len(set(labels_dict.values()))
 
 
 @pytest.mark.parametrize("classification_data", ["train"], indirect=True)

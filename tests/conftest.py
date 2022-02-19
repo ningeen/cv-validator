@@ -29,6 +29,11 @@ def classification_data(request) -> tuple:
     with open(labels_path, "r") as f:
         labels = yaml.load(f, Loader=yaml.FullLoader)
 
+    mapping = dict(
+        zip(ClassifierParams.classes, range(ClassifierParams.num_classes))
+    )
+    labels = {k: mapping[v] for k, v in labels.items()}
+
     predictions = labels
     return image_dir, image_paths, labels, predictions
 
@@ -46,6 +51,11 @@ def classification_data_all() -> dict:
 
         with open(labels_path, "r") as f:
             labels = yaml.load(f, Loader=yaml.FullLoader)
+
+        mapping = dict(
+            zip(ClassifierParams.classes, range(ClassifierParams.num_classes))
+        )
+        labels = {k: mapping[v] for k, v in labels.items()}
 
         predictions = labels
         data[folder] = image_dir, image_paths, labels, predictions
