@@ -50,7 +50,7 @@ class MetricCheck(BaseCheck):
         else:
             datasource = context.test
 
-        if len(datasource.predictions) == 0 or len(datasource.labels) == 0:
+        if datasource.predictions is None or datasource.labels is None:
             return
 
         scorer = get_metric_function(context.metrics[0])
