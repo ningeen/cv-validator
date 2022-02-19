@@ -12,7 +12,7 @@ DIFF_METRICS = {
 }
 
 
-def check_diff_metric(difference_metric: str):
+def check_diff_metric(difference_metric: str) -> str:
     if difference_metric in DIFF_METRICS:
         return difference_metric
     raise NotImplementedError(f"Metric {difference_metric} is not allowed")

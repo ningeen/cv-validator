@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -99,7 +99,7 @@ class FindDuplicates(BaseCheck, ABC):
         self.result.add_dataset(result_df)
         self.result.add_dataset(duplicates_df)
 
-    def prepare_data(self, all_params: List[dict]) -> np.ndarray:
+    def prepare_data(self, all_params: List[Dict]) -> np.ndarray:
         filtered_params = [params[self.param_name] for params in all_params]
         df = np.vstack(filtered_params)
         return df

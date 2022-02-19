@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,6 @@ from sklearn.model_selection import train_test_split
 from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
-from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_argument
 from cv_validator.utils.embedding import (
     WrapInferenceSession,
@@ -101,7 +100,7 @@ class TrainTestShift(BaseCheck):
         score = roc_auc_score(y_test, y_predict)
         return score
 
-    def prepare_data(self, all_params: List[dict]) -> np.ndarray:
+    def prepare_data(self, all_params: List[Dict]) -> np.ndarray:
         filtered_params = [params[self.param_name] for params in all_params]
         df = np.vstack(filtered_params)
         return df

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Mapping, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -47,7 +47,9 @@ class ImageExists(BaseCheck):
         self.result.update_status(status)
         self.result.add_dataset(result_df)
 
-    def get_result(self, image_paths: List[Path]) -> dict:
+    def get_result(
+        self, image_paths: List[Path]
+    ) -> Mapping[str, Union[int, float]]:
         file_exists_result = self.check_file_exists(image_paths)
         length = len(image_paths)
         result = dict()

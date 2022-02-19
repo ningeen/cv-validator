@@ -1,6 +1,7 @@
 import tempfile
 import urllib.request
 from pathlib import Path
+from typing import Optional
 
 import cv2
 import numpy as np
@@ -32,12 +33,13 @@ class WrapInferenceSession:
         self.sess = rt.InferenceSession(self.onnx_bytes.SerializeToString())
 
 
-def load_model(model_path: str, model_name: str) -> Path:
-    if model_path is None:
+def load_model(model_path_str: Optional[str], model_name: str) -> Path:
+    if model_path_str is None:
         tmp_dir = Path(tempfile.gettempdir())
         model_path = tmp_dir.joinpath(f"{model_name}.onnx")
+    else:
+        model_path = Path(model_path_str)
 
-    model_path = Path(model_path)
     if not model_path.is_file():
         urllib.request.urlretrieve(
             supported_models[model_name], model_path.as_posix()

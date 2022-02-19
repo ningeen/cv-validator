@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Callable, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -7,6 +7,7 @@ from cv_validator.core.check import BaseCheck, DataType
 from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
+from cv_validator.utils.metric import get_metric_function
 
 
 class MetricCheck(BaseCheck):
@@ -52,7 +53,7 @@ class MetricCheck(BaseCheck):
         if len(datasource.predictions) == 0 or len(datasource.labels) == 0:
             return
 
-        scorer = context.metrics[0]._score_func
+        scorer = get_metric_function(context.metrics[0])
         self._update_scorer_name(scorer.__name__)
 
         score = scorer(datasource.labels_pd, datasource.predictions_pd)

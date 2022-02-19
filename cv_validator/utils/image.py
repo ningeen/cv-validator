@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import cv2
 import numpy as np
@@ -25,7 +25,7 @@ def open_image(path: Path):
 def run_parallel_func_on_images(
     image_paths: List[Path],
     checks: List[BaseCheck],
-    transform: Callable,
+    transform: Optional[Callable],
     func: Callable,
     num_workers: int,
 ):

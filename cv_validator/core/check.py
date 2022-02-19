@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -37,7 +37,7 @@ class BaseCheck(ABC):
         pass
 
     @abstractmethod
-    def run(self, context: Context) -> CheckResult:
+    def run(self, context: Context):
         pass
 
     @abstractmethod
@@ -52,7 +52,7 @@ class BaseCheck(ABC):
     def have_result(self):
         return self.result.status != ResultStatus.INITIALIZED
 
-    def get_data(self, context: Context) -> [DataType, DataType]:
+    def get_data(self, context: Context) -> Tuple[DataType, DataType]:
         df_train = self.get_source_data(context.train)
         df_test = self.get_source_data(context.test)
         return df_train, df_test
@@ -76,7 +76,7 @@ class ParamDistributionCheck(BaseCheck, ABC):
     ):
         super().__init__(need_transformed_img)
 
-        self.desired_params = list()
+        self.desired_params: List[str] = list()
         self.diff_metric = check_diff_metric(difference_metric)
         if condition is None:
             self.condition = MoreThanCondition(
@@ -113,7 +113,7 @@ class ParamDistributionCheck(BaseCheck, ABC):
 
     def get_result(
         self, df_train: pd.DataFrame, df_test: pd.DataFrame
-    ) -> dict:
+    ) -> Dict:
         result = {}
         diff_func = DIFF_METRICS[self.diff_metric]
         for param in self.desired_params:
@@ -121,12 +121,12 @@ class ParamDistributionCheck(BaseCheck, ABC):
             result[param] = metric
         return result
 
-    def prepare_data(self, all_params: List[dict]) -> pd.DataFrame:
+    def prepare_data(self, all_params: List[Dict]) -> pd.DataFrame:
         filtered_params = [self.filter_params(params) for params in all_params]
         df = pd.DataFrame(filtered_params)
         return df
 
-    def filter_params(self, params_dict: dict) -> dict:
+    def filter_params(self, params_dict: Dict) -> Dict:
         filtered = {name: params_dict[name] for name in self.desired_params}
         return filtered
 

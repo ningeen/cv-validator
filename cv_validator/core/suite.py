@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Iterable, List, Union
+from typing import Callable, Dict, Iterable, List, Optional, Union
 
 from IPython.display import display
 
@@ -8,7 +8,6 @@ from ..utils.image import (
     open_image,
     run_parallel_func_on_images,
 )
-from ..utils.metric import ScorerTypes
 from .check import BaseCheck
 from .context import Context
 from .data import DataSource
@@ -35,7 +34,7 @@ class BaseSuite:
         train: DataSource,
         test: DataSource,
         model: Callable = None,
-        metrics: ScorerTypes = None,
+        metrics: Union[str, Callable] = None,
         num_workers: int = 1,
         skip_finished: bool = True,
     ):
@@ -46,6 +45,7 @@ class BaseSuite:
         self.show_result()
 
     def run_checks(self, skip_finished: bool):
+        assert self._context is not None
         for check in self.checks:
             finished_check = check.result.status != ResultStatus.INITIALIZED
             if skip_finished and finished_check:
@@ -68,12 +68,15 @@ class BaseSuite:
     @staticmethod
     def calc_params(
         img_path: Path, checks: List[BaseCheck], transform: Callable
-    ):
+    ) -> Dict[str, Dict[str, float]]:
         img = open_image(img_path)
         if transform is not None:
             transformed_img = apply_transform(img, transform)
 
-        params = {"raw": dict(), "transformed": dict()}
+        params: Dict[str, Dict[str, float]] = {
+            "raw": dict(),
+            "transformed": dict(),
+        }
         for check in checks:
             if check.need_transformed_img and transform is None:
                 print(

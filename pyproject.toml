@@ -11,9 +11,9 @@ pandas = "^1.4.0"
 opencv-python = "^4.5.5"
 plotly = "^5.6.0"
 ipython = "^8.0.1"
-# my-package = {path = ".", develop = true}
 onnxruntime = "^1.10.0"
 scipy = "^1.8.0"
+my-package = {path = ".", develop = true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"

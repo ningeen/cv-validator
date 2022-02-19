@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Dict
+from typing import Callable, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -9,8 +9,8 @@ import plotly.express as px
 from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
-from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_argument
+from cv_validator.utils.metric import get_metric_function
 
 
 class MetricByGroup(BaseCheck, ABC):
@@ -60,12 +60,12 @@ class MetricByGroup(BaseCheck, ABC):
         if len(datasource.predictions) == 0 or len(datasource.labels) == 0:
             return
 
-        scorer = context.metrics[0]._score_func
+        scorer = get_metric_function(context.metrics[0])
         self._update_scorer_name(scorer.__name__)
 
         param = self.get_source_data(datasource)
 
-        result = defaultdict(dict)
+        result: Dict[str, Dict[str, float]] = defaultdict(dict)
         for group, interval in self.intervals.items():
             mask = (param > interval.left) & (param <= interval.right)
             if np.sum(mask) > 0:
@@ -103,7 +103,7 @@ class MetricByGroup(BaseCheck, ABC):
         self.result.add_dataset(result_df)
         self.result.add_plot(plot)
 
-    def prepare_data(self, params_dict: dict) -> np.ndarray:
+    def prepare_data(self, params_dict: List[Dict]) -> np.ndarray:
         filtered = [params[self.param] for params in params_dict]
         return np.array(filtered)
 

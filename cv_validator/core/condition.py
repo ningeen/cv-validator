@@ -25,8 +25,8 @@ class NoCondition(BaseCondition):
 
 class MoreThanCondition(BaseCondition):
     def __init__(self, warn_threshold: float, error_threshold: float):
-        self.warn_threshold: float = warn_threshold
-        self.error_threshold: float = error_threshold
+        self.warn_threshold = warn_threshold
+        self.error_threshold = error_threshold
         self._description: str = ""
 
     def __call__(self, control_value: float) -> ResultStatus:
@@ -54,8 +54,8 @@ class MoreThanCondition(BaseCondition):
 
 class LessThanCondition(BaseCondition):
     def __init__(self, warn_threshold: float, error_threshold: float):
-        self.warn_threshold: float = warn_threshold
-        self.error_threshold: float = error_threshold
+        self.warn_threshold = warn_threshold
+        self.error_threshold = error_threshold
         self._description: str = ""
 
     def __call__(self, control_value: float) -> ResultStatus:

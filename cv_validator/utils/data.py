@@ -31,7 +31,7 @@ def get_labels_from_image_paths(image_paths: List[Path]) -> Dict[str, str]:
 
 
 def convert_labels_to_dict(
-    labels: Any, image_names: List[str] = None
+    labels: Union[Dict, Sequence], image_names: List[str] = None
 ) -> Tuple[Dict[str, int], Dict[int, Any], Dict[Any, int]]:
     if labels is None:
         return None, None, None

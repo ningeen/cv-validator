@@ -7,6 +7,7 @@ import plotly.express as px
 from cv_validator.core.check import BaseCheck, DataType
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
+from cv_validator.utils.metric import get_metric_function
 
 
 class MetricDiff(BaseCheck):
@@ -38,7 +39,7 @@ class MetricDiff(BaseCheck):
         return dict()
 
     def run(self, context: Context):
-        scorer = context.metrics[0]._score_func
+        scorer = get_metric_function(context.metrics[0])
         self._update_scorer_name(scorer.__name__)
 
         if (
