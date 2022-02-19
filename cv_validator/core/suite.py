@@ -41,8 +41,12 @@ class BaseSuite:
         skip_finished: bool = True,
     ):
         self._context = Context(task, train, test, model, metrics)
-        self.prepare_image_params(self._context.train, num_workers)
-        self.prepare_image_params(self._context.test, num_workers)
+        self.prepare_image_params(
+            self._context.train, num_workers, skip_finished
+        )
+        self.prepare_image_params(
+            self._context.test, num_workers, skip_finished
+        )
         self.run_checks(skip_finished)
         self.show_result()
 
@@ -51,15 +55,21 @@ class BaseSuite:
         pbar = tqdm(self.checks, desc="Running checks", total=len(self.checks))
         for check in pbar:
             pbar.set_postfix_str(f"Processing {check.name}")
-            finished_check = check.result.status != ResultStatus.INITIALIZED
-            if skip_finished and finished_check:
+            if skip_finished and check.have_result:
                 continue
             check.run(self._context)
 
-    def prepare_image_params(self, source: DataSource, num_workers):
+    def prepare_image_params(
+        self, source: DataSource, num_workers: int, skip_finished: bool
+    ):
+        if skip_finished:
+            checks = self.unfinished_checks
+        else:
+            checks = self.checks
+
         train_params = run_parallel_func_on_images(
             source.image_paths,
-            self.checks,
+            checks,
             source.transform,
             self.calc_params,
             num_workers,
@@ -115,6 +125,11 @@ class BaseSuite:
                 display(df)
             for plot in check.result.plots:
                 plot.show()
+
+    @property
+    def unfinished_checks(self) -> List[BaseCheck]:
+        filtered = [check for check in self.checks if not check.have_result]
+        return filtered
 
     def add_check(self, check: BaseCheck):
         if not isinstance(check, BaseCheck):
