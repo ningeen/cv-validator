@@ -13,10 +13,20 @@ plotly = "^5.6.0"
 ipython = "^8.0.1"
 onnxruntime = "^1.10.0"
 scipy = "^1.8.0"
-my-package = {path = ".", develop = true}
+#my-package = {path = ".", develop = true}
+onnx = "^1.11.0"
+tqdm = "^4.62.3"
+ipywidgets = "^7.6.5"
+px = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"
+notebook = "^6.4.8"
+mypy = "^0.931"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+black = "^22.1.0"
+albumentations = "^1.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
