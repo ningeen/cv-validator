@@ -12,15 +12,12 @@ repository = "https://github.com/ningeen/cv-validator"
 python = ">=3.8,<3.11"
 numpy = "^1.22.1"
 pandas = "^1.4.0"
+scipy = "^1.8.0"
 opencv-python = "^4.5.5"
 plotly = "^5.6.0"
-ipython = "^8.0.1"
-onnxruntime = "^1.10.0"
-scipy = "^1.8.0"
-onnx = "^1.11.0"
 tqdm = "^4.62.3"
-ipywidgets = "^7.6.5"
-px = "^0.1.0"
+onnx = "^1.11.0"
+onnxruntime = "^1.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"
@@ -30,6 +27,8 @@ flake8 = "^4.0.1"
 isort = "^5.10.1"
 black = "^22.1.0"
 albumentations = "^1.1.0"
+ipywidgets = "^7.6.5"
+ipython = "^8.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
