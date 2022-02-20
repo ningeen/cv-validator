@@ -33,18 +33,18 @@ class MoreThanCondition(BaseCondition):
         if control_value is None:
             return ResultStatus.NO_RESULT
 
-        self._description = f"Control value = {control_value:.3f} "
+        self._description = f"Control value = {control_value:.2f} "
         if control_value > self.error_threshold:
             self._description += (
-                f"which is more than {self.error_threshold:.3f}"
+                f"which is more than {self.error_threshold:.2f}"
             )
             return ResultStatus.BAD
         if control_value > self.warn_threshold:
             self._description += (
-                f"which is more than {self.warn_threshold:.3f}"
+                f"which is more than {self.warn_threshold:.2f}"
             )
             return ResultStatus.WARN
-        self._description += f"which is less than {self.warn_threshold:.3f}"
+        self._description += f"which is less than {self.warn_threshold:.2f}"
         return ResultStatus.GOOD
 
     @property
@@ -62,18 +62,18 @@ class LessThanCondition(BaseCondition):
         if control_value is None:
             return ResultStatus.NO_RESULT
 
-        self._description = f"Control value = {control_value:.3f} "
+        self._description = f"Control value = {control_value:.2f} "
         if control_value < self.error_threshold:
             self._description += (
-                f"which is less than {self.error_threshold:.3f}"
+                f"which is less than {self.error_threshold:.2f}"
             )
             return ResultStatus.BAD
         if control_value < self.warn_threshold:
             self._description += (
-                f"which is less than {self.warn_threshold:.3f}"
+                f"which is less than {self.warn_threshold:.2f}"
             )
             return ResultStatus.WARN
-        self._description += f"which is more than {self.warn_threshold:.3f}"
+        self._description += f"which is more than {self.warn_threshold:.2f}"
         return ResultStatus.GOOD
 
     @property
