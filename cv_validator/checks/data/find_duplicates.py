@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -24,6 +24,7 @@ _DUPLICATE_RATIO_THRESHOLDS = {
     "warn": 0.05,
     "error": 0.15,
 }
+EPS = 1e-15
 
 
 class FindDuplicates(BaseCheck, ABC):
@@ -49,10 +50,9 @@ class FindDuplicates(BaseCheck, ABC):
             )
 
     def run(self, context: Context):
-        if self._datasource_types == "between":
+        if self.datasource_type == "between":
             hash_train, hash_test = self.get_data(context)
             duplicate_pairs = self.get_duplicates(hash_train, hash_test)
-            duplicate_pairs = self.filter_swapped_pairs(duplicate_pairs)
             duplicates = self.collect_duplicates(
                 duplicate_pairs,
                 context.train.image_paths,
@@ -106,7 +106,7 @@ class FindDuplicates(BaseCheck, ABC):
 
     @staticmethod
     def collect_duplicates(
-        duplicate_pairs: List[tuple],
+        duplicate_pairs: List[Tuple],
         paths_left: List[Path],
         paths_right: List[Path] = None,
     ) -> Dict[Path, List[str]]:
@@ -121,22 +121,23 @@ class FindDuplicates(BaseCheck, ABC):
         return result
 
     @staticmethod
-    def filter_equal_pairs(duplicate_pairs) -> List[tuple]:
+    def filter_equal_pairs(duplicate_pairs) -> List[Tuple]:
         return [pair for pair in duplicate_pairs if pair[0] != pair[1]]
 
     @staticmethod
-    def filter_swapped_pairs(duplicate_pairs) -> List[tuple]:
+    def filter_swapped_pairs(duplicate_pairs) -> List[Tuple]:
         return [pair for pair in duplicate_pairs if pair[0] > pair[1]]
 
     def get_duplicates(
         self, hash_left: np.ndarray, hash_right: np.ndarray = None
-    ) -> np.ndarray:
+    ) -> List[Tuple]:
         if hash_right is None:
             distance = self.distance_func(hash_left, hash_left)
         else:
             distance = self.distance_func(hash_left, hash_right)
         distance_mask = distance <= self.threshold
         duplicate_indices = np.where(distance_mask)
+        duplicate_indices = list(zip(*duplicate_indices))
         return duplicate_indices
 
     @property
@@ -213,7 +214,7 @@ class EmbeddingDuplicates(FindDuplicates):
         condition: BaseCondition = None,
         model_name: str = "efficientnet-lite4",
         model_path: str = None,
-        cosine_distance_threshold: float = 0.05,
+        cosine_distance_threshold: float = 1e-3,
     ):
         super().__init__(mode, datasource_type, condition)
         self._param_name = "embedding"
@@ -227,7 +228,7 @@ class EmbeddingDuplicates(FindDuplicates):
         if self.mode == "approx":
             self.cosine_distance_threshold = cosine_distance_threshold
         else:
-            self.cosine_distance_threshold = 0
+            self.cosine_distance_threshold = EPS
 
     def distance_func(
         self, hash_left: np.ndarray, hash_right: np.ndarray
