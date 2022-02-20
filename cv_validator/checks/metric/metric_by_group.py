@@ -85,7 +85,7 @@ class MetricByGroup(BaseCheck, ABC):
         result_df = pd.DataFrame.from_dict(
             {
                 self.scorer_name: result["scores"],
-                "size": result["size"],
+                "count": result["size"],
                 "status": {
                     group: cond_result.name
                     for group, cond_result in statuses.items()
@@ -114,10 +114,14 @@ class MetricBySize(MetricByGroup):
         super().__init__()
         self._param = "area"
         self._intervals = {
-            "small": pd.Interval(left=0, right=64 * 64),
-            "medium": pd.Interval(left=64 * 64, right=256 * 256),
-            "large": pd.Interval(left=256 * 256, right=1024 * 1024),
-            "x-large": pd.Interval(left=1024 * 1024, right=np.inf),
+            "small [<64x64]": pd.Interval(left=0, right=64 * 64),
+            "medium [<256x256]": pd.Interval(left=64 * 64, right=256 * 256),
+            "large [<1024x1024]": pd.Interval(
+                left=256 * 256, right=1024 * 1024
+            ),
+            "x-large [>=1024x1024]": pd.Interval(
+                left=1024 * 1024, right=np.inf
+            ),
         }
 
     def get_description(self) -> str:
