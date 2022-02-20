@@ -57,5 +57,6 @@ class ColorShift(ParamDistributionCheck):
                 marginal="box",
                 title=f"Distribution for feature {param}",
             )
+            fig.update_layout(xaxis_title=param)
             plots.append(fig)
         return plots
