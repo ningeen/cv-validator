@@ -78,11 +78,12 @@ class FindDuplicates(BaseCheck, ABC):
 
         status = self.condition(duplicates_ratio)
 
+        column = f"{self.param_name} search for {self.datasource_type}"
         result_df = pd.DataFrame.from_dict(
             {
-                "number of duplicates": num_of_duplicates,
-                "duplicates ratio": duplicates_ratio,
-                "status": status.name,
+                "number of duplicates": {column: num_of_duplicates},
+                "duplicates ratio": {column: duplicates_ratio},
+                "status": {column: status.name},
             },
             orient="index",
         )

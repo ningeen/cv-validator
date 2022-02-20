@@ -61,8 +61,8 @@ class MetricCheck(BaseCheck):
         status = self.condition(score)
         result_df = pd.DataFrame.from_dict(
             {
-                scorer.__name__: score,
-                "status": status.name,
+                "metric": {self.scorer_name: score},
+                "status": {self.scorer_name: status.name},
             },
             orient="index",
         )

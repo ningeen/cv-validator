@@ -58,11 +58,11 @@ class MetricDiff(BaseCheck):
         status = self.condition(relative_diff)
         result_df = pd.DataFrame.from_dict(
             {
-                "train": train_score,
-                "test": test_score,
-                "difference": diff,
-                "relative difference": relative_diff,
-                "status": status.name,
+                "train": {self.scorer_name: train_score},
+                "test": {self.scorer_name: test_score},
+                "difference": {self.scorer_name: diff},
+                "relative difference": {self.scorer_name: relative_diff},
+                "status": {self.scorer_name: status.name},
             },
             orient="index",
         )
