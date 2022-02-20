@@ -13,6 +13,8 @@ pip install cv-validator
 ```
 
 ## Usage
+Example on colab: [Link](https://colab.research.google.com/drive/184BZS6iJJTtAyHMY34TOS-W-MjpiOqCW?usp=sharing)
+
 ```python
 from cv_validator.checks import *
 from cv_validator.core.data import DataSource
