@@ -22,6 +22,12 @@ _RF_MODEL_PARAMS = dict(n_estimators=300, random_state=0)
 
 
 class TrainTestShift(BaseCheck):
+    """
+    Train test shift
+
+    Checks covariate shift: difference between train and test distributions
+    """
+
     def __init__(
         self,
         model_name: str = "efficientnet-lite4",
@@ -49,12 +55,6 @@ class TrainTestShift(BaseCheck):
     @property
     def param_name(self) -> str:
         return self._param_name
-
-    def get_name(self) -> str:
-        return "Train test data shift"
-
-    def get_description(self) -> str:
-        return "Check difference train and test by neural net"
 
     def calc_img_params(self, img: np.array) -> dict:
         img_processed = pre_process_edge_tpu(img)

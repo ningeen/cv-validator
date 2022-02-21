@@ -5,6 +5,12 @@ from .image_size import ParamDistributionCheck
 
 
 class BrightnessCheck(ParamDistributionCheck):
+    """
+    Image brightness check
+
+    Compares image brightness and darkness distributions.
+    """
+
     def __init__(
         self,
         difference_metric: str = "psi",
@@ -17,12 +23,6 @@ class BrightnessCheck(ParamDistributionCheck):
         self.threshold_bright = threshold_bright
         self.threshold_dark = threshold_dark
         self.desired_params = ["bright_ratio", "dark_ratio"]
-
-    def get_name(self) -> str:
-        return "Image brightness check."
-
-    def get_description(self) -> str:
-        return "Compares image brightness distributions."
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()

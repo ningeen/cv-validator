@@ -4,6 +4,7 @@ from typing import Callable, Dict, Iterable, List, Union
 from IPython.display import Markdown, display
 from tqdm import tqdm
 
+from ..utils.check import get_name_and_description
 from ..utils.display import result_to_color
 from ..utils.image import (
     apply_transform,
@@ -54,7 +55,8 @@ class BaseSuite:
         assert self._context is not None
         pbar = tqdm(self.checks, desc="Running checks", total=len(self.checks))
         for check in pbar:
-            pbar.set_postfix_str(f"Processing {check.name}")
+            check_name, _ = get_name_and_description(check)
+            pbar.set_postfix_str(f"Processing {check_name}")
             if skip_finished and check.have_result:
                 continue
             check.run(self._context)
@@ -107,16 +109,17 @@ class BaseSuite:
 
     def show_result(self):
         for check in self.checks:
-            display(Markdown("---"))
-            display(Markdown(f"## {check.name}"))
-            display(Markdown(f"### {check.description}"))
+            check_name, check_description = get_name_and_description(check)
+
             color = result_to_color(check.result.status)
-            display(
-                Markdown(
-                    f"**Result: <span style='color: {color}'>"
-                    f"{check.condition.description}</span>.**"
-                )
+            text = Markdown(
+                f"---\n"
+                f"## {check_name}\n"
+                f"### {check_description}\n"
+                f"**Result: <span style='color: {color}'>"
+                f"{check.condition.description}</span>.**"
             )
+            display(text)
             for df in check.result.datasets:
                 display(df)
             for plot in check.result.plots:

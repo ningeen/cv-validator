@@ -5,6 +5,12 @@ from ...core.condition import BaseCondition
 
 
 class ImageSize(ParamDistributionCheck):
+    """
+    Image size check
+
+    Compares image size, area and ratio
+    """
+
     def __init__(
         self,
         difference_metric: str = "psi",
@@ -12,12 +18,6 @@ class ImageSize(ParamDistributionCheck):
     ):
         super().__init__(difference_metric, condition)
         self.desired_params = ["height", "width", "ratio", "area"]
-
-    def get_name(self) -> str:
-        return "Image size check."
-
-    def get_description(self) -> str:
-        return "Compares image sizes and ratios."
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()

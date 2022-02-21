@@ -11,6 +11,12 @@ from .image_size import ParamDistributionCheck
 
 
 class ColorShift(ParamDistributionCheck):
+    """
+    Image colors check
+
+    Compares image colors distributions.
+    """
+
     def __init__(
         self,
         difference_metric: str = "psi",
@@ -24,12 +30,6 @@ class ColorShift(ParamDistributionCheck):
             + [f"{color.name}_std" for color in Colors]
         )
         self.plot_params = ["color_mean", "color_std"]
-
-    def get_name(self) -> str:
-        return "Image colors check."
-
-    def get_description(self) -> str:
-        return "Compares image colors distributions."
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()

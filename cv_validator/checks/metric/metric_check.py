@@ -11,6 +11,12 @@ from cv_validator.utils.metric import get_metric_function
 
 
 class MetricCheck(BaseCheck):
+    """
+    Metric quality
+
+    Checks model quality by given metric
+    """
+
     def __init__(
         self,
         datasource_type: str = "test",
@@ -34,12 +40,6 @@ class MetricCheck(BaseCheck):
 
     def _update_scorer_name(self, name: str):
         self.scorer_name = name
-
-    def get_name(self) -> str:
-        return "Metric check"
-
-    def get_description(self) -> str:
-        return "Checks model quality for metric"
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()

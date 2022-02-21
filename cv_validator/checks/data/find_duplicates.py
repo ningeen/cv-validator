@@ -28,6 +28,10 @@ EPS = 1e-15
 
 
 class FindDuplicates(BaseCheck, ABC):
+    """
+    Abstract class for searching duplicates check
+    """
+
     def __init__(
         self,
         mode: str = "exact",
@@ -159,6 +163,12 @@ class FindDuplicates(BaseCheck, ABC):
 
 
 class HashDuplicates(FindDuplicates):
+    """
+    Find duplicates by phash
+
+    Search duplicated images in datasource(s) by perceptual hash
+    """
+
     def __init__(
         self,
         mode: str = "exact",
@@ -193,21 +203,15 @@ class HashDuplicates(FindDuplicates):
         result = {self.param_name: self.phash.get_hash_str(img)}
         return result
 
-    def get_name(self) -> str:
-        return "Find duplicates by phash"
-
-    # def get_description(self) -> str:
-    #     if self._datasource_types == "between":
-    #         mode = "between train and test"
-    #     else:
-    #         mode = f"for {self._datasource_types}"
-    #     return f"Find duplicates by phash {mode}"
-
-    def get_description(self) -> str:
-        return "Find duplicates by phash"
-
 
 class EmbeddingDuplicates(FindDuplicates):
+    """
+    Find duplicates by embeddings
+
+    Search duplicated images in datasource(s) by embeddings
+    made by Imagenet-pretrained neural net
+    """
+
     def __init__(
         self,
         mode: str = "exact",
@@ -251,16 +255,3 @@ class EmbeddingDuplicates(FindDuplicates):
         embedding = self.sess.run(None, {"images:0": img_batch})[0][0]
         result = {self.param_name: embedding}
         return result
-
-    def get_name(self) -> str:
-        return "Find duplicates by embeddings"
-
-    # def get_description(self) -> str:
-    #     if self._datasource_types == "between":
-    #         mode = "between train and test"
-    #     else:
-    #         mode = f"for {self._datasource_types}"
-    #     return f"Find duplicates by embeddings {mode}"
-
-    def get_description(self) -> str:
-        return "Find duplicates by embeddings"

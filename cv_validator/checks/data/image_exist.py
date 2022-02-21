@@ -14,6 +14,12 @@ _DEFAULT_ERROR_THRESHOLD = 0.10
 
 
 class ImageExists(BaseCheck):
+    """
+    Image existence check
+
+    Checks if all provided images exists
+    """
+
     def __init__(
         self,
         condition: BaseCondition = None,
@@ -27,12 +33,6 @@ class ImageExists(BaseCheck):
                 warn_threshold=_DEFAULT_WARN_THRESHOLD,
                 error_threshold=_DEFAULT_ERROR_THRESHOLD,
             )
-
-    def get_name(self) -> str:
-        return "Image exists check."
-
-    def get_description(self) -> str:
-        return "Checks if all provided images exists."
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()

@@ -18,16 +18,15 @@ DataType = Union[np.ndarray, pd.DataFrame]
 
 
 class BaseCheck(ABC):
+    """
+    Abstract check class
+    """
+
     def __init__(self, need_transformed_img: bool = False):
-        self.name: str = self.get_name()
-        self.description: str = self.get_description()
         self.need_transformed_img = need_transformed_img
 
         self.condition: BaseCondition = NoCondition()
         self.result: CheckResult = CheckResult()
-
-    def __repr__(self):
-        return self.name
 
     def update_condition(self, condition: BaseCondition):
         self.condition = check_class(condition, BaseCondition)
@@ -38,14 +37,6 @@ class BaseCheck(ABC):
 
     @abstractmethod
     def run(self, context: Context):
-        pass
-
-    @abstractmethod
-    def get_name(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_description(self) -> str:
         pass
 
     @property
@@ -68,6 +59,10 @@ class BaseCheck(ABC):
 
 
 class ParamDistributionCheck(BaseCheck, ABC):
+    """
+    Abstract class for checks with parameters distribution
+    """
+
     def __init__(
         self,
         difference_metric: str = "psi",

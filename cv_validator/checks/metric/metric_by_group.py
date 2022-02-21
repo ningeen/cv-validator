@@ -14,6 +14,10 @@ from cv_validator.utils.metric import get_metric_function
 
 
 class MetricByGroup(BaseCheck, ABC):
+    """
+    Abstract class for metric quality grouped by parameter check
+    """
+
     def __init__(
         self,
         datasource_type: str = "test",
@@ -37,9 +41,6 @@ class MetricByGroup(BaseCheck, ABC):
 
     def _update_scorer_name(self, name: str):
         self.scorer_name = name
-
-    def get_name(self) -> str:
-        return "Metric check by group"
 
     @property
     @abstractmethod
@@ -110,6 +111,12 @@ class MetricByGroup(BaseCheck, ABC):
 
 
 class MetricBySize(MetricByGroup):
+    """
+    Metric by size
+
+    Checks metric quality grouped by image size
+    """
+
     def __init__(self):
         super().__init__()
         self._param = "area"
@@ -123,9 +130,6 @@ class MetricBySize(MetricByGroup):
                 left=1024 * 1024, right=np.inf
             ),
         }
-
-    def get_description(self) -> str:
-        return "Checks metric grouped by image size"
 
     @property
     def param(self) -> str:
@@ -141,6 +145,12 @@ class MetricBySize(MetricByGroup):
 
 
 class MetricByRatio(MetricByGroup):
+    """
+    Metric by ratio
+
+    Checks metric quality grouped by image ratio
+    """
+
     def __init__(self):
         super().__init__()
         self._param = "ratio"
@@ -149,9 +159,6 @@ class MetricByRatio(MetricByGroup):
             "square": pd.Interval(left=0.99999, right=1.0),
             "wide": pd.Interval(left=1.0, right=np.inf),
         }
-
-    def get_description(self) -> str:
-        return "Checks metric grouped by image side ratio"
 
     @property
     def param(self) -> str:

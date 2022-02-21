@@ -11,6 +11,12 @@ from cv_validator.utils.metric import get_metric_function
 
 
 class MetricDiff(BaseCheck):
+    """
+    Overfitting check
+
+    Checks difference between model quality on train and test by given metric
+    """
+
     def __init__(
         self,
         warn_threshold: float = 0.1,
@@ -28,12 +34,6 @@ class MetricDiff(BaseCheck):
 
     def _update_scorer_name(self, name: str):
         self.scorer_name = name
-
-    def get_name(self) -> str:
-        return "Metric difference"
-
-    def get_description(self) -> str:
-        return "Train-test metric difference"
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()
