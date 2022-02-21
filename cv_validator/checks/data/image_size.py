@@ -1,7 +1,7 @@
 import numpy as np
 
-from ...core.check import ParamDistributionCheck
-from ...core.condition import BaseCondition
+from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.core.condition import BaseCondition
 
 
 class ImageSize(ParamDistributionCheck):

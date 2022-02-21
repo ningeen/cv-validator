@@ -5,9 +5,9 @@ import pandas as pd
 import plotly.express as px
 from plotly.basedatatypes import BaseFigure
 
-from ...core.condition import BaseCondition
-from ...utils.image import Colors
-from .image_size import ParamDistributionCheck
+from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.core.condition import BaseCondition
+from cv_validator.utils.image import Colors
 
 
 class ColorShift(ParamDistributionCheck):

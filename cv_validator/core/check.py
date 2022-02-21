@@ -1,18 +1,26 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
 from plotly.basedatatypes import BaseFigure
 
-from ..utils.check import DIFF_METRICS, DIFF_THRESHOLD, check_diff_metric
-from ..utils.common import check_class
-from .condition import BaseCondition, MoreThanCondition, NoCondition
-from .context import Context
-from .data import DataSource
-from .result import CheckResult
-from .status import ResultStatus
+from cv_validator.core.condition import (
+    BaseCondition,
+    MoreThanCondition,
+    NoCondition,
+)
+from cv_validator.core.context import Context
+from cv_validator.core.data import DataSource
+from cv_validator.core.result import CheckResult
+from cv_validator.core.status import ResultStatus
+from cv_validator.utils.check import (
+    DIFF_METRICS,
+    check_diff_metric,
+    get_diff_threshold,
+)
+from cv_validator.utils.common import check_class
 
 DataType = Union[np.ndarray, pd.DataFrame]
 
@@ -74,9 +82,10 @@ class ParamDistributionCheck(BaseCheck, ABC):
         self.desired_params: List[str] = list()
         self.diff_metric = check_diff_metric(difference_metric)
         if condition is None:
+            threshold = get_diff_threshold(self.diff_metric)
             self.condition = MoreThanCondition(
-                warn_threshold=DIFF_THRESHOLD[self.diff_metric]["warn"],
-                error_threshold=DIFF_THRESHOLD[self.diff_metric]["error"],
+                warn_threshold=threshold.warn,
+                error_threshold=threshold.error,
             )
 
     def run(self, context: Context):

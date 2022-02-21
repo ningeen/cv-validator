@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -10,8 +10,8 @@ from scipy import spatial
 from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
-from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_argument
+from cv_validator.utils.constants import EPS, ThresholdDuplicateRatio
 from cv_validator.utils.embedding import (
     WrapInferenceSession,
     load_model,
@@ -19,12 +19,6 @@ from cv_validator.utils.embedding import (
     supported_models,
 )
 from cv_validator.utils.hashing import PHash
-
-_DUPLICATE_RATIO_THRESHOLDS = {
-    "warn": 0.05,
-    "error": 0.15,
-}
-EPS = 1e-15
 
 
 class FindDuplicates(BaseCheck, ABC):
@@ -49,8 +43,8 @@ class FindDuplicates(BaseCheck, ABC):
 
         if condition is None:
             self.condition = MoreThanCondition(
-                warn_threshold=_DUPLICATE_RATIO_THRESHOLDS["warn"],
-                error_threshold=_DUPLICATE_RATIO_THRESHOLDS["error"],
+                warn_threshold=ThresholdDuplicateRatio.warn,
+                error_threshold=ThresholdDuplicateRatio.error,
             )
 
     def run(self, context: Context):

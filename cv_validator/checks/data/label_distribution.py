@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from ...core.check import ParamDistributionCheck
-from ...core.data import DataSource
+from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.core.data import DataSource
 
 
 class ClassifierLabelDistribution(ParamDistributionCheck):

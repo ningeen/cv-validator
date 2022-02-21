@@ -1,7 +1,7 @@
 import numpy as np
 
-from ...core.condition import BaseCondition
-from .image_size import ParamDistributionCheck
+from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.core.condition import BaseCondition
 
 
 class BrightnessCheck(ParamDistributionCheck):

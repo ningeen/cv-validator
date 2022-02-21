@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Union
+from typing import Callable, List, Optional, Union
 
 from sklearn.metrics import SCORERS, get_scorer
 from sklearn.metrics._scorer import _BaseScorer

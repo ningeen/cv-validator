@@ -4,17 +4,16 @@ from typing import Callable, Dict, Iterable, List, Union
 from IPython.display import Markdown, display
 from tqdm import tqdm
 
-from ..utils.check import get_name_and_description
-from ..utils.display import result_to_color
-from ..utils.image import (
+from cv_validator.core.check import BaseCheck
+from cv_validator.core.context import Context
+from cv_validator.core.data import DataSource
+from cv_validator.utils.check import get_name_and_description
+from cv_validator.utils.display import result_to_color
+from cv_validator.utils.image import (
     apply_transform,
     open_image,
     run_parallel_func_on_images,
 )
-from .check import BaseCheck
-from .context import Context
-from .data import DataSource
-from .status import ResultStatus
 
 
 class BaseSuite:

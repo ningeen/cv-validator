@@ -7,6 +7,7 @@ import plotly.express as px
 from cv_validator.core.check import BaseCheck, DataType
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
+from cv_validator.utils.constants import ThresholdMetricDiff
 from cv_validator.utils.metric import get_metric_function
 
 
@@ -19,8 +20,6 @@ class MetricDiff(BaseCheck):
 
     def __init__(
         self,
-        warn_threshold: float = 0.1,
-        error_threshold: float = 0.3,
         condition: BaseCondition = None,
     ):
         super().__init__()
@@ -28,8 +27,8 @@ class MetricDiff(BaseCheck):
         self.scorer_name = "metric"
         if condition is None:
             self.condition = MoreThanCondition(
-                warn_threshold=warn_threshold,
-                error_threshold=error_threshold,
+                warn_threshold=ThresholdMetricDiff.warn,
+                error_threshold=ThresholdMetricDiff.error,
             )
 
     def _update_scorer_name(self, name: str):

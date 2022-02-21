@@ -1,16 +1,14 @@
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Union
+from typing import List, Mapping, Union
 
 import numpy as np
 import pandas as pd
 
-from ...core.check import BaseCheck
-from ...core.condition import BaseCondition, MoreThanCondition
-from ...core.context import Context
-from ...utils.data import check_datasource_type
-
-_DEFAULT_WARN_THRESHOLD = 0.00
-_DEFAULT_ERROR_THRESHOLD = 0.10
+from cv_validator.core.check import BaseCheck
+from cv_validator.core.condition import BaseCondition, MoreThanCondition
+from cv_validator.core.context import Context
+from cv_validator.utils.constants import ThresholdNoImageRatio
+from cv_validator.utils.data import check_datasource_type
 
 
 class ImageExists(BaseCheck):
@@ -30,8 +28,8 @@ class ImageExists(BaseCheck):
         self.datasource: str = check_datasource_type(datasource)
         if condition is None:
             self.condition = MoreThanCondition(
-                warn_threshold=_DEFAULT_WARN_THRESHOLD,
-                error_threshold=_DEFAULT_ERROR_THRESHOLD,
+                warn_threshold=ThresholdNoImageRatio.warn,
+                error_threshold=ThresholdNoImageRatio.error,
             )
 
     def calc_img_params(self, img: np.array) -> dict:

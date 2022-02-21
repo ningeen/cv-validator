@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
+from cv_validator.utils.constants import ThresholdMetricLess
 from cv_validator.utils.metric import get_metric_function
 
 
@@ -21,8 +22,6 @@ class MetricByGroup(BaseCheck, ABC):
     def __init__(
         self,
         datasource_type: str = "test",
-        warn_threshold: float = 0.6,
-        error_threshold: float = 0.2,
         condition: BaseCondition = None,
     ):
         super().__init__()
@@ -35,8 +34,8 @@ class MetricByGroup(BaseCheck, ABC):
 
         if condition is None:
             self.condition = LessThanCondition(
-                warn_threshold=warn_threshold,
-                error_threshold=error_threshold,
+                warn_threshold=ThresholdMetricLess.warn,
+                error_threshold=ThresholdMetricLess.error,
             )
 
     def _update_scorer_name(self, name: str):

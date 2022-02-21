@@ -2,16 +2,19 @@ from typing import Any, Tuple
 
 from scipy.stats import wasserstein_distance
 
+from cv_validator.utils.constants import ThresholdPSI, ThresholdWasserstein
 from cv_validator.utils.psi import calculate_psi
 
-DIFF_THRESHOLD = {
-    "psi": {"warn": 0.1, "error": 0.2},
-    "wasserstein_distance": {"warn": 0.5, "error": 2.0},
-}
 DIFF_METRICS = {
     "psi": calculate_psi,
     "wasserstein_distance": wasserstein_distance,
 }
+
+
+def get_diff_threshold(metric_name: str):
+    if metric_name == "psi":
+        return ThresholdPSI
+    return ThresholdWasserstein
 
 
 def check_diff_metric(difference_metric: str) -> str:

@@ -3,8 +3,8 @@ from typing import List
 import pandas as pd
 from plotly.basedatatypes import BaseFigure
 
-from ..utils.common import check_class
-from .status import ResultStatus
+from cv_validator.core.status import ResultStatus
+from cv_validator.utils.common import check_class
 
 
 class CheckResult:

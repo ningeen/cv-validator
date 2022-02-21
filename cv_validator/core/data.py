@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
-import pandas as pd
 
 from ..utils.data import (
     check_dir_exists,

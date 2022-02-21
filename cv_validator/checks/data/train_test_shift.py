@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ from cv_validator.core.check import BaseCheck
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
+from cv_validator.utils.constants import ThresholdRocAuc
 from cv_validator.utils.embedding import (
     WrapInferenceSession,
     load_model,
@@ -32,8 +33,6 @@ class TrainTestShift(BaseCheck):
         self,
         model_name: str = "efficientnet-lite4",
         model_path: str = None,
-        warn_threshold: float = 0.55,
-        error_threshold: float = 0.60,
         condition: BaseCondition = None,
         need_transformed_img: bool = False,
     ):
@@ -48,8 +47,8 @@ class TrainTestShift(BaseCheck):
 
         if condition is None:
             self.condition = MoreThanCondition(
-                warn_threshold=warn_threshold,
-                error_threshold=error_threshold,
+                warn_threshold=ThresholdRocAuc.warn,
+                error_threshold=ThresholdRocAuc.error,
             )
 
     @property

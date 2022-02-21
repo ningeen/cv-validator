@@ -1,8 +1,8 @@
 from typing import Callable, List, Union
 
-from ..utils.common import check_class
-from ..utils.metric import check_scorers, check_task
-from .data import DataSource
+from cv_validator.core.data import DataSource
+from cv_validator.utils.common import check_class
+from cv_validator.utils.metric import check_scorers, check_task
 
 
 class Context:
