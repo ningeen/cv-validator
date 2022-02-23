@@ -9,8 +9,8 @@ import onnx
 import onnxruntime as rt
 
 supported_models = {
-    "efficientnet-lite4": "https://github.com/onnx/models/blob/main/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11.onnx?raw=true",
-    "efficientnet-lite4-int8": "https://github.com/onnx/models/blob/main/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11-int8.onnx?raw=true",
+    "efficientnet-lite4": "https://emb-weights.s3.eu-north-1.amazonaws.com/efficientnet-lite4-embed.onnx",
+    "efficientnet-lite4-int8": "https://emb-weights.s3.eu-north-1.amazonaws.com/efficientnet-lite4-int8-embed.onnx",
 }
 
 
