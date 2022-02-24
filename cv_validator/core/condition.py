@@ -28,10 +28,7 @@ class NoCondition(BaseCondition):
 
 
 class ThresholdCondition(BaseCondition, ABC):
-    def __init__(
-        self, param_name: str, warn_threshold: float, error_threshold: float
-    ):
-        self.param_name = param_name
+    def __init__(self, warn_threshold: float, error_threshold: float):
         self.warn_threshold = warn_threshold
         self.error_threshold = error_threshold
         self._description: str = ""
@@ -41,17 +38,21 @@ class ThresholdCondition(BaseCondition, ABC):
         return self._description
 
     @abstractmethod
-    def __call__(self, control_value: float) -> ResultStatus:
+    def __call__(
+        self, control_value: float, param_name: str = ""
+    ) -> ResultStatus:
         pass
 
 
 class MoreThanCondition(ThresholdCondition):
-    def __call__(self, control_value: float) -> ResultStatus:
+    def __call__(
+        self, control_value: float, param_name: str = "param"
+    ) -> ResultStatus:
         if control_value is None:
             return ResultStatus.NO_RESULT
 
         self._description = (
-            f"Control value of {self.param_name} = {control_value:.2f} "
+            f"Control value for {param_name} = {control_value:.2f} "
         )
         if control_value > self.error_threshold:
             self._description += (
@@ -68,12 +69,14 @@ class MoreThanCondition(ThresholdCondition):
 
 
 class LessThanCondition(ThresholdCondition):
-    def __call__(self, control_value: float) -> ResultStatus:
+    def __call__(
+        self, control_value: float, param_name: str = "param"
+    ) -> ResultStatus:
         if control_value is None:
             return ResultStatus.NO_RESULT
 
         self._description = (
-            f"Control value of {self.param_name} = {control_value:.2f} "
+            f"Control value for {param_name} = {control_value:.2f} "
         )
         if control_value < self.error_threshold:
             self._description += (

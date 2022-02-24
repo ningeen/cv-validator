@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 
-from cv_validator.core.check import BaseCheck
+from cv_validator.core.check import BaseCheckDifference
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
@@ -22,7 +22,7 @@ _SPLIT_PARAMS = dict(test_size=0.25, shuffle=True, random_state=0)
 _RF_MODEL_PARAMS = dict(n_estimators=300, random_state=0)
 
 
-class TrainTestShift(BaseCheck):
+class TrainTestShift(BaseCheckDifference):
     """
     Train test shift
 
@@ -33,7 +33,7 @@ class TrainTestShift(BaseCheck):
         self,
         model_name: str = "efficientnet-lite4",
         model_path: str = None,
-        condition: BaseCondition = None,
+        conditions: List[BaseCondition] = None,
         need_transformed_img: bool = False,
     ):
         super().__init__(need_transformed_img)
@@ -45,11 +45,14 @@ class TrainTestShift(BaseCheck):
         self.model_path = load_model(model_path, model_name)
         self.sess = WrapInferenceSession(self.model_path.as_posix())
 
-        if condition is None:
-            self.condition = MoreThanCondition(
-                warn_threshold=ThresholdRocAuc.warn,
-                error_threshold=ThresholdRocAuc.error,
-            )
+        if conditions is None:
+            self.conditions = [
+                MoreThanCondition(
+                    "roc_auc_score",
+                    warn_threshold=ThresholdRocAuc.warn,
+                    error_threshold=ThresholdRocAuc.error,
+                )
+            ]
 
     @property
     def param_name(self) -> str:
@@ -67,7 +70,7 @@ class TrainTestShift(BaseCheck):
 
         score = self.calc_difference_score(emb_test, emb_train)
 
-        status = self.condition(score)
+        status = self.conditions[0](score)
         result_df = pd.DataFrame.from_dict(
             {
                 "roc_auc_score": score,

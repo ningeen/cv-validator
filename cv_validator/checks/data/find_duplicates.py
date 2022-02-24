@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy import spatial
 
-from cv_validator.core.check import BaseCheck
+from cv_validator.core.check import BaseCheck, BaseCheckDifference
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
@@ -21,7 +21,7 @@ from cv_validator.utils.embedding import (
 from cv_validator.utils.hashing import PHash
 
 
-class FindDuplicates(BaseCheck, ABC):
+class FindDuplicates(BaseCheckDifference, ABC):
     """
     Abstract class for searching duplicates check
     """
@@ -30,7 +30,7 @@ class FindDuplicates(BaseCheck, ABC):
         self,
         mode: str = "exact",
         datasource_type: str = "between",
-        condition: BaseCondition = None,
+        conditions: List[BaseCondition] = None,
     ):
         super().__init__()
         self._modes = ["exact", "approx"]
@@ -41,11 +41,14 @@ class FindDuplicates(BaseCheck, ABC):
             datasource_type, self._datasource_types
         )
 
-        if condition is None:
-            self.condition = MoreThanCondition(
-                warn_threshold=ThresholdDuplicateRatio.warn,
-                error_threshold=ThresholdDuplicateRatio.error,
-            )
+        if conditions is None:
+            self.conditions = [
+                MoreThanCondition(
+                    f"{self.mode}_{self.datasource_type}",
+                    warn_threshold=ThresholdDuplicateRatio.warn,
+                    error_threshold=ThresholdDuplicateRatio.error,
+                )
+            ]
 
     def run(self, context: Context):
         if self.datasource_type == "between":
@@ -74,7 +77,7 @@ class FindDuplicates(BaseCheck, ABC):
             num_of_duplicates = sum([len(dup) for dup in duplicates.values()])
             duplicates_ratio = num_of_duplicates / len(datasource)
 
-        status = self.condition(duplicates_ratio)
+        status = self.conditions[0](duplicates_ratio)
 
         column = f"{self.param_name} search for {self.datasource_type}"
         result_df = pd.DataFrame.from_dict(

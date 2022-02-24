@@ -20,16 +20,18 @@ class ColorShift(ParamDistributionCheck):
     def __init__(
         self,
         difference_metric: str = "psi",
-        condition: BaseCondition = None,
+        conditions: List[BaseCondition] = None,
         need_transformed_img: bool = False,
     ):
-        super().__init__(difference_metric, condition, need_transformed_img)
-        self.desired_params = (
+        super().__init__(difference_metric, need_transformed_img, conditions)
+        desired_params = (
             ["num_channels", "color_mean", "color_std"]
             + [f"{color.name}_mean" for color in Colors]
             + [f"{color.name}_std" for color in Colors]
         )
-        self.plot_params = ["color_mean", "color_std"]
+        self.update_desired_params(desired_params)
+
+        self._plot_params = ["color_mean", "color_std"]
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()
@@ -43,6 +45,10 @@ class ColorShift(ParamDistributionCheck):
                 result[f"{color.name}_mean"] = np.mean(img[:, :, color.value])
                 result[f"{color.name}_std"] = np.mean(img[:, :, color.value])
         return result
+
+    @property
+    def plot_params(self):
+        return self._plot_params
 
     def get_plots(
         self, df_train: pd.DataFrame, df_test: pd.DataFrame

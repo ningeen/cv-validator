@@ -9,9 +9,9 @@ from cv_validator.core.context import Context
 from cv_validator.core.data import DataSource
 from cv_validator.core.result import CheckResult
 from cv_validator.core.status import ResultStatus
-from cv_validator.utils.common import check_class
 
 DataType = Union[np.ndarray, pd.DataFrame]
+ConditionsType = Union[BaseCondition, List[BaseCondition]]
 
 
 class BaseCheck(ABC):
@@ -21,12 +21,8 @@ class BaseCheck(ABC):
 
     def __init__(self, need_transformed_img: bool = False):
         self.need_transformed_img = need_transformed_img
-
-        self.condition: BaseCondition = NoCondition()
+        self.conditions: List[BaseCondition] = [NoCondition()]
         self.result: CheckResult = CheckResult()
-
-    def update_condition(self, condition: BaseCondition):
-        self.condition = check_class(condition, BaseCondition)
 
     @abstractmethod
     def calc_img_params(self, img: np.array) -> dict:
@@ -39,6 +35,12 @@ class BaseCheck(ABC):
     @property
     def have_result(self):
         return self.result.status != ResultStatus.INITIALIZED
+
+
+class BaseCheckDifference(BaseCheck, ABC):
+    """
+    Abstract class for check between train and test
+    """
 
     def get_data(self, context: Context) -> Tuple[DataType, DataType]:
         df_train = self.get_source_data(context.train)

@@ -14,7 +14,8 @@ class ClassifierLabelDistribution(ParamDistributionCheck):
 
     def __init__(self):
         super().__init__()
-        self.desired_params = ["labels"]
+        desired_params = ["labels"]
+        self.update_desired_params(desired_params)
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()

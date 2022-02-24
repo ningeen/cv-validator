@@ -112,12 +112,18 @@ class BaseSuite:
             check_name, check_description = get_name_and_description(check)
 
             color = result_to_color(check.result.status)
+            conditions_result = "\n".join(
+                [
+                    f"<span style='color: {color}'>{condition.description}</span>**"
+                    for condition in check.conditions
+                ]
+            )
             text = Markdown(
                 f"---\n"
                 f"## {check_name}\n"
                 f"### {check_description}\n"
-                f"**Result: <span style='color: {color}'>"
-                f"{check.condition.description}</span>.**"
+                f"**Result:\n"
+                f"{conditions_result}"
             )
             display(text)
             for df in check.result.datasets:

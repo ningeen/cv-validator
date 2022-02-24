@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 from cv_validator.checks.data.param_distribution import ParamDistributionCheck
@@ -14,10 +16,11 @@ class ImageSize(ParamDistributionCheck):
     def __init__(
         self,
         difference_metric: str = "psi",
-        condition: BaseCondition = None,
+        conditions: List[BaseCondition] = None,
     ):
-        super().__init__(difference_metric, condition)
-        self.desired_params = ["height", "width", "ratio", "area"]
+        super().__init__(difference_metric, False, conditions)
+        desired_params = ["height", "width", "ratio", "area"]
+        self.update_desired_params(desired_params)
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()
