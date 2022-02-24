@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.checks.data.param_distribution import ParamDistributionCheck
 from cv_validator.core.data import DataSource
 
 

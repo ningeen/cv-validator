@@ -1,6 +1,6 @@
 import numpy as np
 
-from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.checks.data.param_distribution import ParamDistributionCheck
 from cv_validator.core.condition import BaseCondition
 
 

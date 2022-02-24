@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 from plotly.basedatatypes import BaseFigure
 
-from cv_validator.core.check import ParamDistributionCheck
+from cv_validator.checks.data.param_distribution import ParamDistributionCheck
 from cv_validator.core.condition import BaseCondition
 from cv_validator.utils.image import Colors
 
