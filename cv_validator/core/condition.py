@@ -27,17 +27,32 @@ class NoCondition(BaseCondition):
         return "No condition needed"
 
 
-class MoreThanCondition(BaseCondition):
-    def __init__(self, warn_threshold: float, error_threshold: float):
+class ThresholdCondition(BaseCondition, ABC):
+    def __init__(
+        self, param_name: str, warn_threshold: float, error_threshold: float
+    ):
+        self.param_name = param_name
         self.warn_threshold = warn_threshold
         self.error_threshold = error_threshold
         self._description: str = ""
 
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @abstractmethod
+    def __call__(self, control_value: float) -> ResultStatus:
+        pass
+
+
+class MoreThanCondition(ThresholdCondition):
     def __call__(self, control_value: float) -> ResultStatus:
         if control_value is None:
             return ResultStatus.NO_RESULT
 
-        self._description = f"Control value = {control_value:.2f} "
+        self._description = (
+            f"Control value of {self.param_name} = {control_value:.2f} "
+        )
         if control_value > self.error_threshold:
             self._description += (
                 f"which is more than {self.error_threshold:.2f}"
@@ -51,22 +66,15 @@ class MoreThanCondition(BaseCondition):
         self._description += f"which is less than {self.warn_threshold:.2f}"
         return ResultStatus.GOOD
 
-    @property
-    def description(self) -> str:
-        return self._description
 
-
-class LessThanCondition(BaseCondition):
-    def __init__(self, warn_threshold: float, error_threshold: float):
-        self.warn_threshold = warn_threshold
-        self.error_threshold = error_threshold
-        self._description: str = ""
-
+class LessThanCondition(ThresholdCondition):
     def __call__(self, control_value: float) -> ResultStatus:
         if control_value is None:
             return ResultStatus.NO_RESULT
 
-        self._description = f"Control value = {control_value:.2f} "
+        self._description = (
+            f"Control value of {self.param_name} = {control_value:.2f} "
+        )
         if control_value < self.error_threshold:
             self._description += (
                 f"which is less than {self.error_threshold:.2f}"
@@ -79,7 +87,3 @@ class LessThanCondition(BaseCondition):
             return ResultStatus.WARN
         self._description += f"which is more than {self.warn_threshold:.2f}"
         return ResultStatus.GOOD
-
-    @property
-    def description(self) -> str:
-        return self._description
