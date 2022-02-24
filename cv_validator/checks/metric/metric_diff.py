@@ -21,22 +21,26 @@ class MetricDiff(BaseCheck):
         self,
         condition: BaseCondition = None,
     ):
-        super().__init__()
+        super().__init__(condition)
 
         self.scorer_name = "metric"
-        if condition is None:
-            self.condition = MoreThanCondition(
-                warn_threshold=ThresholdMetricDiff.warn,
-                error_threshold=ThresholdMetricDiff.error,
-            )
+
+    def get_default_condition(self):
+        condition = MoreThanCondition(
+            warn_threshold=ThresholdMetricDiff.warn,
+            error_threshold=ThresholdMetricDiff.error,
+        )
+        return condition
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()
 
     def run(self, context: Context):
+        self.conditions = self.reset_conditions(count=len(context.metrics))
+
         result = dict()
         statuses = dict()
-        for metric_func in context.metrics:
+        for idx, metric_func in enumerate(context.metrics):
             metric_name = metric_func.__name__
             result_metric = dict()
             for data_type in ["train", "test"]:
@@ -53,7 +57,7 @@ class MetricDiff(BaseCheck):
                 result_metric["diff abs"] / result_metric["train"]
             )
 
-            status = self.condition(result_metric["diff rel, %"])
+            status = self.conditions[idx](result_metric["diff rel, %"])
             result_metric["status"] = status.name
 
             result[metric_name] = result_metric

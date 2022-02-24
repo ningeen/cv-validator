@@ -22,18 +22,19 @@ class MetricCheck(BaseCheck):
         datasource_type: str = "test",
         condition: BaseCondition = None,
     ):
-        super().__init__()
+        super().__init__(condition)
         self._datasource_types = ["train", "test"]
 
         self.datasource_type: str = check_argument(
             datasource_type, self._datasource_types
         )
 
-        if condition is None:
-            self.condition = LessThanCondition(
-                warn_threshold=ThresholdMetricLess.warn,
-                error_threshold=ThresholdMetricLess.error,
-            )
+    def get_default_condition(self):
+        condition = LessThanCondition(
+            warn_threshold=ThresholdMetricLess.warn,
+            error_threshold=ThresholdMetricLess.error,
+        )
+        return condition
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()
@@ -47,19 +48,25 @@ class MetricCheck(BaseCheck):
         if datasource.predictions is None or datasource.labels is None:
             return
 
+        self.conditions = self.reset_conditions(count=len(context.metrics))
+
         result = dict()
         statuses = dict()
-        for metric_func in context.metrics:
+        for idx, metric_func in enumerate(context.metrics):
             metric_name = metric_func.__name__
             score = metric_func(
                 datasource.labels_array, datasource.predictions_array
             )
             result[metric_name] = score
 
-            statuses[metric_name] = self.condition(score)
+            statuses[metric_name] = self.conditions[idx](score, metric_name)
 
+        statuses_str = {
+            metric_name: status.name
+            for metric_name, status in statuses.items()
+        }
         result_df = pd.DataFrame.from_dict(
-            {"metric": result, "status": statuses},
+            {"metric": result, "status": statuses_str},
             orient="index",
         )
 

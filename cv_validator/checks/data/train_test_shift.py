@@ -33,10 +33,10 @@ class TrainTestShift(BaseCheckDifference):
         self,
         model_name: str = "efficientnet-lite4",
         model_path: str = None,
-        conditions: List[BaseCondition] = None,
+        condition: BaseCondition = None,
         need_transformed_img: bool = False,
     ):
-        super().__init__(need_transformed_img)
+        super().__init__(condition, need_transformed_img)
         self._param_name = "embedding"
 
         self.model_name = check_argument(
@@ -45,14 +45,12 @@ class TrainTestShift(BaseCheckDifference):
         self.model_path = load_model(model_path, model_name)
         self.sess = WrapInferenceSession(self.model_path.as_posix())
 
-        if conditions is None:
-            self.conditions = [
-                MoreThanCondition(
-                    "roc_auc_score",
-                    warn_threshold=ThresholdRocAuc.warn,
-                    error_threshold=ThresholdRocAuc.error,
-                )
-            ]
+    def get_default_condition(self):
+        condition = MoreThanCondition(
+            warn_threshold=ThresholdRocAuc.warn,
+            error_threshold=ThresholdRocAuc.error,
+        )
+        return condition
 
     @property
     def param_name(self) -> str:

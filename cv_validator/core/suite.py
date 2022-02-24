@@ -111,10 +111,10 @@ class BaseSuite:
         for check in self.checks:
             check_name, check_description = get_name_and_description(check)
 
-            color = result_to_color(check.result.status)
             conditions_result = "\n".join(
                 [
-                    f"<span style='color: {color}'>{condition.description}</span>**"
+                    f"* <span style='color: {result_to_color(condition.status)}'>"
+                    f"{condition.description}</span>"
                     for condition in check.conditions
                 ]
             )
@@ -122,7 +122,7 @@ class BaseSuite:
                 f"---\n"
                 f"## {check_name}\n"
                 f"### {check_description}\n"
-                f"**Result:\n"
+                f"**Result:**\n"
                 f"{conditions_result}"
             )
             display(text)

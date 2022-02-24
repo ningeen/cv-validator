@@ -1,5 +1,3 @@
-from typing import List
-
 import numpy as np
 
 from cv_validator.checks.data.param_distribution import ParamDistributionCheck
@@ -15,18 +13,16 @@ class BrightnessCheck(ParamDistributionCheck):
 
     def __init__(
         self,
+        condition: BaseCondition = None,
         difference_metric: str = "psi",
-        conditions: List[BaseCondition] = None,
         need_transformed_img: bool = False,
         threshold_bright: int = 15,
         threshold_dark: int = 240,
     ):
-        super().__init__(difference_metric, need_transformed_img, conditions)
+        super().__init__(condition, difference_metric, need_transformed_img)
         self.threshold_bright = threshold_bright
         self.threshold_dark = threshold_dark
-
-        desired_params = ["bright_ratio", "dark_ratio"]
-        self.update_desired_params(desired_params)
+        self._desired_params = ["bright_ratio", "dark_ratio"]
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()

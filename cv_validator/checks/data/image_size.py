@@ -16,11 +16,10 @@ class ImageSize(ParamDistributionCheck):
     def __init__(
         self,
         difference_metric: str = "psi",
-        conditions: List[BaseCondition] = None,
+        condition: BaseCondition = None,
     ):
-        super().__init__(difference_metric, False, conditions)
-        desired_params = ["height", "width", "ratio", "area"]
-        self.update_desired_params(desired_params)
+        super().__init__(condition, difference_metric)
+        self._desired_params = ["height", "width", "ratio", "area"]
 
     def calc_img_params(self, img: np.array) -> dict:
         result = dict()

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from cv_validator.checks.data.param_distribution import ParamDistributionCheck
+from cv_validator.core.condition import BaseCondition
 from cv_validator.core.data import DataSource
 
 
@@ -12,10 +13,9 @@ class ClassifierLabelDistribution(ParamDistributionCheck):
     Compares label distribution between train and test
     """
 
-    def __init__(self):
-        super().__init__()
-        desired_params = ["labels"]
-        self.update_desired_params(desired_params)
+    def __init__(self, condition: BaseCondition = None):
+        super().__init__(condition)
+        self._desired_params = ["labels"]
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()

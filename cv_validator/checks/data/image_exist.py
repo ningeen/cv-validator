@@ -21,19 +21,18 @@ class ImageExists(BaseCheck):
     def __init__(
         self,
         datasource_type: str = "train",
-        conditions: List[BaseCondition] = None,
+        condition: BaseCondition = None,
     ):
-        super().__init__()
+        super().__init__(condition)
 
         self.datasource: str = check_datasource_type(datasource_type)
-        if conditions is None:
-            self.condition = [
-                MoreThanCondition(
-                    "not_found_ratio",
-                    warn_threshold=ThresholdNoImageRatio.warn,
-                    error_threshold=ThresholdNoImageRatio.error,
-                )
-            ]
+
+    def get_default_condition(self):
+        condition = MoreThanCondition(
+            warn_threshold=ThresholdNoImageRatio.warn,
+            error_threshold=ThresholdNoImageRatio.error,
+        )
+        return condition
 
     def calc_img_params(self, img: np.array) -> dict:
         return dict()

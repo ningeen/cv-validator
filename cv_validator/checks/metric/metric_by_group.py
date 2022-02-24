@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 
-from cv_validator.core.check import BaseCheck
+from cv_validator.core.check import BaseCheckDifference
 from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
 from cv_validator.utils.constants import ThresholdMetricLess
 
 
-class MetricByGroup(BaseCheck, ABC):
+class MetricByGroup(BaseCheckDifference, ABC):
     """
     Abstract class for metric quality grouped by parameter check
     """
@@ -22,7 +22,7 @@ class MetricByGroup(BaseCheck, ABC):
         datasource_type: str = "test",
         condition: BaseCondition = None,
     ):
-        super().__init__()
+        super().__init__(condition)
         self._datasource_types = ["train", "test"]
         self.scorer_name = "metric"
 
@@ -30,11 +30,12 @@ class MetricByGroup(BaseCheck, ABC):
             datasource_type, self._datasource_types
         )
 
-        if condition is None:
-            self.condition = LessThanCondition(
-                warn_threshold=ThresholdMetricLess.warn,
-                error_threshold=ThresholdMetricLess.error,
-            )
+    def get_default_condition(self):
+        condition = LessThanCondition(
+            warn_threshold=ThresholdMetricLess.warn,
+            error_threshold=ThresholdMetricLess.error,
+        )
+        return condition
 
     @property
     @abstractmethod
@@ -55,11 +56,13 @@ class MetricByGroup(BaseCheck, ABC):
         if datasource.predictions is None or datasource.labels is None:
             return
 
+        self.conditions = self.reset_conditions(count=len(self.intervals))
+
         param = self.get_source_data(datasource)
 
         result = dict()
         statuses = dict()
-        for group, interval in self.intervals.items():
+        for idx, (group, interval) in enumerate(self.intervals.items()):
             mask = (param > interval.left) & (param <= interval.right)
 
             result_interval = dict(size=sum(mask))
@@ -74,7 +77,10 @@ class MetricByGroup(BaseCheck, ABC):
                 else:
                     score = None
                 result_interval[metric_name] = score
-                status_interval[metric_name] = self.condition(score)
+
+                status_interval[metric_name] = self.conditions[idx](
+                    score, metric_name
+                )
             result_interval["status"] = max(status_interval.values()).name
             result[group] = result_interval
             statuses[group] = status_interval
@@ -112,8 +118,12 @@ class MetricBySize(MetricByGroup):
     Checks metric quality grouped by image size
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        datasource_type: str = "test",
+        condition: BaseCondition = None,
+    ):
+        super().__init__(datasource_type, condition)
         self._param = "area"
         self._intervals = {
             "small [<64x64]": pd.Interval(left=0, right=64 * 64),
@@ -146,8 +156,12 @@ class MetricByRatio(MetricByGroup):
     Checks metric quality grouped by image ratio
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        datasource_type: str = "test",
+        condition: BaseCondition = None,
+    ):
+        super().__init__(datasource_type, condition)
         self._param = "ratio"
         self._intervals = {
             "narrow": pd.Interval(left=0.0, right=0.99999),

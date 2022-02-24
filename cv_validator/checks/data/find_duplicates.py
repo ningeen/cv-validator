@@ -30,9 +30,9 @@ class FindDuplicates(BaseCheckDifference, ABC):
         self,
         mode: str = "exact",
         datasource_type: str = "between",
-        conditions: List[BaseCondition] = None,
+        condition: BaseCondition = None,
     ):
-        super().__init__()
+        super().__init__(condition)
         self._modes = ["exact", "approx"]
         self._datasource_types = ["train", "test", "between"]
 
@@ -41,14 +41,12 @@ class FindDuplicates(BaseCheckDifference, ABC):
             datasource_type, self._datasource_types
         )
 
-        if conditions is None:
-            self.conditions = [
-                MoreThanCondition(
-                    f"{self.mode}_{self.datasource_type}",
-                    warn_threshold=ThresholdDuplicateRatio.warn,
-                    error_threshold=ThresholdDuplicateRatio.error,
-                )
-            ]
+    def get_default_condition(self):
+        condition = MoreThanCondition(
+            warn_threshold=ThresholdDuplicateRatio.warn,
+            error_threshold=ThresholdDuplicateRatio.error,
+        )
+        return condition
 
     def run(self, context: Context):
         if self.datasource_type == "between":
