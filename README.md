@@ -5,7 +5,7 @@
 </p>
 
 # CV validator
-Library to validate computer vision data and models.
+Library to validate computer vision data and model predictions.
 
 ## Installation
 ```commandline

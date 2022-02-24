@@ -14,6 +14,7 @@ from cv_validator.utils.image import (
     open_image,
     run_parallel_func_on_images,
 )
+from cv_validator.utils.metric import ScorerParamsType, ScorerType
 
 
 class BaseSuite:
@@ -35,12 +36,12 @@ class BaseSuite:
         task: str,
         train: DataSource,
         test: DataSource,
-        model: Callable = None,
-        metrics: Union[str, Callable] = None,
+        metrics: ScorerType = None,
+        metrics_parameters: ScorerParamsType = None,
         num_workers: int = 1,
         skip_finished: bool = True,
     ):
-        self._context = Context(task, train, test, model, metrics)
+        self._context = Context(task, train, test, metrics, metrics_parameters)
         self.prepare_image_params(
             self._context.train, num_workers, skip_finished
         )

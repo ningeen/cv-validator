@@ -16,14 +16,12 @@ class Context:
         task: str,
         train: DataSource,
         test: DataSource,
-        model: Callable = None,
         metrics: ScorerType = None,
         metrics_parameters: ScorerParamsType = None,
     ):
         self._task: str = check_task(task)
         self.train: DataSource = check_class(train, DataSource)
         self.test: DataSource = check_class(test, DataSource)
-        self.model: Callable = model
         self.metrics: List[Callable] = check_scorers(
             task, metrics, metrics_parameters
         )
