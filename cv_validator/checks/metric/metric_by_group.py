@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from typing import Dict, List
 
 import numpy as np
@@ -11,7 +10,6 @@ from cv_validator.core.condition import BaseCondition, LessThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.common import check_argument
 from cv_validator.utils.constants import ThresholdMetricLess
-from cv_validator.utils.metric import get_metric_function
 
 
 class MetricByGroup(BaseCheck, ABC):
@@ -38,9 +36,6 @@ class MetricByGroup(BaseCheck, ABC):
                 error_threshold=ThresholdMetricLess.error,
             )
 
-    def _update_scorer_name(self, name: str):
-        self.scorer_name = name
-
     @property
     @abstractmethod
     def param(self) -> str:
@@ -60,49 +55,50 @@ class MetricByGroup(BaseCheck, ABC):
         if datasource.predictions is None or datasource.labels is None:
             return
 
-        scorer = get_metric_function(context.metrics[0])
-        self._update_scorer_name(scorer.__name__)
-
         param = self.get_source_data(datasource)
 
-        result: Dict[str, Dict[str, float]] = defaultdict(dict)
+        result = dict()
+        statuses = dict()
         for group, interval in self.intervals.items():
             mask = (param > interval.left) & (param <= interval.right)
-            if np.sum(mask) > 0:
-                score = scorer(
-                    datasource.labels_array[mask],
-                    datasource.predictions_array[mask],
-                )
-            else:
-                score = None
-            result["scores"][group] = score
-            result["size"][group] = sum(mask)
 
-        statuses = {
-            group: self.condition(score)
-            for group, score in result["scores"].items()
-        }
-        result_df = pd.DataFrame.from_dict(
-            {
-                self.scorer_name: result["scores"],
-                "count": result["size"],
-                "status": {
-                    group: cond_result.name
-                    for group, cond_result in statuses.items()
-                },
-            },
-            orient="index",
-        )
+            result_interval = dict(size=sum(mask))
+            status_interval = dict()
+            for metric_func in context.metrics:
+                metric_name = metric_func.__name__
+                if np.sum(mask) > 0:
+                    score = metric_func(
+                        datasource.labels_array[mask],
+                        datasource.predictions_array[mask],
+                    )
+                else:
+                    score = None
+                result_interval[metric_name] = score
+                status_interval[metric_name] = self.condition(score)
+            result_interval["status"] = max(status_interval.values()).name
+            result[group] = result_interval
+            statuses[group] = status_interval
 
-        plot = px.bar(
-            x=list(result["scores"].keys()),
-            y=list(result["scores"].values()),
-            title=self.scorer_name,
-        )
+        result_df = pd.DataFrame.from_dict(result, orient="index").T
 
-        self.result.update_status(max(statuses.values()))
+        plots = list()
+        for metric_func in context.metrics:
+            metric_name = metric_func.__name__
+            groups = list(result.keys())
+            metric_result = [result[group][metric_name] for group in groups]
+            plot = px.bar(
+                x=groups,
+                y=metric_result,
+                title=metric_name,
+            )
+            plot.update_layout(xaxis_title=metric_name)
+            plots.append(plot)
+
+        result_status = max(max(s.values()) for s in statuses.values())
+        self.result.update_status(result_status)
         self.result.add_dataset(result_df)
-        self.result.add_plot(plot)
+        for plot in plots:
+            self.result.add_plot(plot)
 
     def prepare_data(self, params_dict: List[Dict]) -> np.ndarray:
         filtered = [params[self.param] for params in params_dict]

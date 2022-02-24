@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 from .status import ResultStatus
 
@@ -12,6 +13,9 @@ class BaseCondition(ABC):
     @abstractmethod
     def description(self) -> str:
         pass
+
+    def copy(self):
+        return deepcopy(self)
 
 
 class NoCondition(BaseCondition):

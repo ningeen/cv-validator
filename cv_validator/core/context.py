@@ -1,8 +1,13 @@
-from typing import Callable, List, Union
+from typing import Callable, List
 
 from cv_validator.core.data import DataSource
 from cv_validator.utils.common import check_class
-from cv_validator.utils.metric import check_scorers, check_task
+from cv_validator.utils.metric import (
+    ScorerParamsType,
+    ScorerType,
+    check_scorers,
+    check_task,
+)
 
 
 class Context:
@@ -12,13 +17,16 @@ class Context:
         train: DataSource,
         test: DataSource,
         model: Callable = None,
-        metrics: Union[str, Callable] = None,
+        metrics: ScorerType = None,
+        metrics_parameters: ScorerParamsType = None,
     ):
         self._task: str = check_task(task)
         self.train: DataSource = check_class(train, DataSource)
         self.test: DataSource = check_class(test, DataSource)
         self.model: Callable = model
-        self.metrics: List[Callable] = check_scorers(metrics, task)
+        self.metrics: List[Callable] = check_scorers(
+            task, metrics, metrics_parameters
+        )
 
     @property
     def task(self):

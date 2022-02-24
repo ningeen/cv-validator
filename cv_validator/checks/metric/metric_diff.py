@@ -8,7 +8,6 @@ from cv_validator.core.check import BaseCheck, DataType
 from cv_validator.core.condition import BaseCondition, MoreThanCondition
 from cv_validator.core.context import Context
 from cv_validator.utils.constants import ThresholdMetricDiff
-from cv_validator.utils.metric import get_metric_function
 
 
 class MetricDiff(BaseCheck):
@@ -31,50 +30,50 @@ class MetricDiff(BaseCheck):
                 error_threshold=ThresholdMetricDiff.error,
             )
 
-    def _update_scorer_name(self, name: str):
-        self.scorer_name = name
-
     def calc_img_params(self, img: np.array) -> dict:
         return dict()
 
     def run(self, context: Context):
-        scorer = get_metric_function(context.metrics[0])
-        self._update_scorer_name(scorer.__name__)
+        result = dict()
+        statuses = dict()
+        for metric_func in context.metrics:
+            metric_name = metric_func.__name__
+            result_metric = dict()
+            for data_type in ["train", "test"]:
+                datasource = getattr(context, data_type)
+                if datasource.predictions is None or datasource.labels is None:
+                    return
+                result_metric[data_type] = metric_func(
+                    datasource.labels_array, datasource.predictions_array
+                )
+            result_metric["diff abs"] = (
+                result_metric["train"] - result_metric["test"]
+            )
+            result_metric["diff rel, %"] = (
+                result_metric["diff abs"] / result_metric["train"]
+            )
 
-        for datasource in [context.train, context.test]:
-            if datasource.predictions is None or datasource.labels is None:
-                return
+            status = self.condition(result_metric["diff rel, %"])
+            result_metric["status"] = status.name
 
-        train_score = scorer(
-            context.train.labels_array, context.train.predictions_array
-        )
-        test_score = scorer(
-            context.test.labels_array, context.test.predictions_array
-        )
-        diff = train_score - test_score
-        relative_diff = diff / train_score
+            result[metric_name] = result_metric
+            statuses[metric_name] = status
 
-        status = self.condition(relative_diff)
-        result_df = pd.DataFrame.from_dict(
-            {
-                "train": {self.scorer_name: train_score},
-                "test": {self.scorer_name: test_score},
-                "difference": {self.scorer_name: diff},
-                "relative difference": {self.scorer_name: relative_diff},
-                "status": {self.scorer_name: status.name},
-            },
-            orient="index",
-        )
+        result_df = pd.DataFrame.from_dict(result, orient="index")
 
-        plot = px.bar(
-            x=["train", "test"],
-            y=[train_score, test_score],
-            title=self.scorer_name,
-        )
+        plots = list()
+        for metric_func in context.metrics:
+            metric_name = metric_func.__name__
+            data_types = ["train", "test"]
+            values = [result[metric_name][dt] for dt in data_types]
+            plot = px.bar(x=data_types, y=values, title=metric_name)
+            plot.update_layout(xaxis_title=metric_name)
+            plots.append(plot)
 
-        self.result.update_status(status)
+        self.result.update_status(max(statuses.values()))
         self.result.add_dataset(result_df)
-        self.result.add_plot(plot)
+        for plot in plots:
+            self.result.add_plot(plot)
 
     def prepare_data(self, params: List[Dict]) -> DataType:
         pass
